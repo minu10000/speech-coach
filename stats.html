@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>연습 기록 — SpeechCoach</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .stats-wrap {
+      max-width: 900px; margin: 0 auto;
+      padding: 2.8rem 1.5rem 6rem;
+      position: relative; z-index: 1;
+    }
+    .pg-header { margin-bottom: 2rem; }
+    .pg-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.03em; }
+    .pg-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem; }
+
+    /* summary */
+    .sum-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0.85rem; margin-bottom: 2rem;
+    }
+    @media(max-width:600px){ .sum-grid{grid-template-columns:repeat(2,1fr);} }
+
+    .sum-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.4rem 1.1rem;
+      text-align: center;
+      transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+    }
+    .sum-card:hover {
+      border-color: var(--border-p);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    }
+    .sum-icon { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+    .sum-val {
+      font-size: 1.6rem; font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.03em;
+    }
+    .sum-lbl { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+    /* records */
+    .rec-hdr {
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .rec-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 0.65rem;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 1rem; flex-wrap: wrap;
+      transition: border-color 0.18s, transform 0.2s, box-shadow 0.2s;
+    }
+    .rec-item:hover {
+      border-color: var(--border-p);
+      transform: translateX(4px);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    }
+    .rec-left { flex: 1; min-width: 200px; }
+    .rec-date { font-size: 0.74rem; color: var(--text-dim); margin-bottom: 0.22rem; }
+    .rec-title { font-weight: 700; font-size: 0.93rem; margin-bottom: 0.42rem; letter-spacing: -0.01em; }
+    .rec-meta { display: flex; gap: 0.9rem; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-dim); }
+    .rec-meta span { display: flex; align-items: center; gap: 0.28rem; }
+    .rec-right { display: flex; align-items: center; gap: 0.8rem; }
+    .rec-score {
+      font-size: 1.5rem; font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.03em; text-align: center;
+    }
+    .rec-score-lbl { font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: -0.1rem; }
+
+    /* empty */
+    .empty-state {
+      text-align: center; padding: 5rem 2rem; color: var(--text-dim);
+    }
+    .empty-state .e-icon { font-size: 3.5rem; opacity: 0.4; display: block; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-sub); margin-bottom: 0.45rem; }
+    .empty-state p { font-size: 0.88rem; margin-bottom: 1.8rem; }
+  </style>
+</head>
+<body>
+  <div class="page-glow page-glow-1"></div>
+  <div class="page-glow page-glow-2"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="logo">🎤 SpeechCoach</a>
+    <ul class="nav-links">
+      <li><a href="practice.html">연습하기</a></li>
+      <li><a href="stats.html">내 기록</a></li>
+      <li><a href="profile.html">프로필</a></li>
+      <li><a href="login.html">로그인</a></li>
+    </ul>
+  </nav>
+
+  <div class="stats-wrap">
+    <div class="pg-header">
+      <h1>연습 기록</h1>
+      <p>나의 스피치 연습 통계와 기록을 확인하세요</p>
+    </div>
+
+    <div class="sum-grid">
+      <div class="sum-card">
+        <span class="sum-icon">📋</span>
+        <div class="sum-val" id="totalCount">0</div>
+        <div class="sum-lbl">총 연습 횟수</div>
+      </div>
+      <div class="sum-card">
+        <span class="sum-icon">⏱</span>
+        <div class="sum-val" id="totalPracticeTime">0분</div>
+        <div class="sum-lbl">총 연습 시간</div>
+      </div>
+      <div class="sum-card">
+        <span class="sum-icon">🤫</span>
+        <div class="sum-val" id="avgSilence">0%</div>
+        <div class="sum-lbl">평균 침묵 비율</div>
+      </div>
+      <div class="sum-card">
+        <span class="sum-icon">🏆</span>
+        <div class="sum-val" id="bestScore">—</div>
+        <div class="sum-lbl">최고 점수</div>
+      </div>
+    </div>
+
+    <div class="rec-hdr">
+      <div class="section-title" style="margin-bottom:0;">연습 기록 목록</div>
+      <button class="btn btn-ghost" id="clearAllBtn"
+        style="color:var(--danger);border-color:rgba(244,98,106,0.25);display:none;"
+        onclick="clearAllRecords()">전체 삭제</button>
+    </div>
+
+    <div id="recordsList"></div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/stats.js"></script>
+</body>
+</html>

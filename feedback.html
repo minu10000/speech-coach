@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 피드백 — SpeechCoach</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .fb-wrap {
+      max-width: 860px; margin: 0 auto;
+      padding: 2.8rem 1.5rem 6rem;
+      position: relative; z-index: 1;
+    }
+    .pg-header { margin-bottom: 2rem; }
+    .pg-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.03em; }
+    .pg-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem; }
+
+    /* score */
+    .score-section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-2xl);
+      padding: 3.5rem 2rem;
+      text-align: center; margin-bottom: 1.5rem;
+      position: relative; overflow: hidden;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset;
+    }
+    .score-section::before {
+      content: '';
+      position: absolute; width: 500px; height: 350px;
+      top: -100px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(123,99,248,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .score-label {
+      font-size: 0.73rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text-dim); margin-bottom: 1rem; position: relative;
+    }
+    .score-number {
+      font-size: 6rem; font-weight: 900; line-height: 1;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.06em;
+      margin-bottom: 0.3rem; position: relative;
+    }
+    .score-max { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1.2rem; position: relative; }
+    .score-grade {
+      display: inline-block; padding: 0.4rem 1.3rem;
+      border-radius: 99px; font-size: 0.88rem; font-weight: 700;
+      position: relative; letter-spacing: 0.02em;
+    }
+
+    /* chart section */
+    .chart-wrap {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .chart-title {
+      font-size: 0.95rem; font-weight: 700;
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .chart-title::before {
+      content: ''; display: block; width: 3px; height: 16px;
+      background: var(--grad); border-radius: 99px;
+    }
+    .chart-container {
+      position: relative; height: 280px;
+      display: flex; justify-content: center;
+    }
+
+    /* categories */
+    .cat-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 0.9rem; margin-bottom: 1rem;
+    }
+    @media(max-width:580px){ .cat-grid{grid-template-columns:1fr;} }
+
+    .cat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.4rem;
+      transition: border-color 0.18s;
+    }
+    .cat-card:hover { border-color: var(--border-p); }
+    .cat-hdr {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 0.8rem;
+    }
+    .cat-title {
+      display: flex; align-items: center; gap: 0.55rem;
+      font-weight: 700; font-size: 0.92rem;
+    }
+    .cat-score {
+      font-size: 1.1rem; font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .detail-row {
+      display: flex; justify-content: space-between;
+      padding: 0.3rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row span:last-child { color: var(--text-sub); font-weight: 600; }
+
+    /* action */
+    .action-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .action-card .section-title {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem;
+    }
+    .action-card .section-title::before {
+      content: ''; display: block; width: 3px; height: 16px;
+      background: var(--grad); border-radius: 99px;
+    }
+    .action-item {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      padding: 0.85rem 0; border-bottom: 1px solid var(--border);
+    }
+    .action-item:last-child { border-bottom: none; }
+    .act-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--grad); color: #fff;
+      font-size: 0.7rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 0.1rem;
+    }
+    .act-text { font-size: 0.86rem; line-height: 1.65; }
+    .act-text strong { color: var(--text); display: block; margin-bottom: 0.18rem; font-weight: 700; }
+    .act-text span { color: var(--text-dim); }
+
+    /* bottom */
+    .bottom-bar {
+      display: flex; gap: 0.8rem; flex-wrap: wrap;
+      justify-content: center; margin-top: 2rem;
+    }
+
+    /* no data */
+    .no-data { text-align: center; padding: 5rem 2rem; color: var(--text-dim); }
+    .no-data .nd-icon { font-size: 3.5rem; opacity: 0.4; display: block; margin-bottom: 1rem; }
+    .no-data h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-sub); margin-bottom: 0.45rem; }
+    .no-data p { font-size: 0.88rem; margin-bottom: 1.8rem; }
+
+    /* progress bar animation */
+    .progress-fill {
+      transition: width 1s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-glow page-glow-1"></div>
+  <div class="page-glow page-glow-2"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="logo">🎤 SpeechCoach</a>
+    <ul class="nav-links">
+      <li><a href="practice.html">연습하기</a></li>
+      <li><a href="stats.html">내 기록</a></li>
+      <li><a href="profile.html">프로필</a></li>
+      <li><a href="login.html">로그인</a></li>
+    </ul>
+  </nav>
+
+  <div class="fb-wrap">
+    <div class="pg-header">
+      <h1>AI 피드백</h1>
+      <p>마지막 연습 결과를 AI 가 분석한 상세 피드백입니다</p>
+    </div>
+
+    <div id="feedbackContent"></div>
+
+    <div class="bottom-bar">
+      <a href="practice.html" class="btn btn-primary btn-lg">다시 연습하기</a>
+      <a href="stats.html" class="btn btn-outline btn-lg">기록 보기</a>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/feedback.js"></script>
+</body>
+</html>

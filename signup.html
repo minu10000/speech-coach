@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 — SpeechCoach</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-wrap {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      position: relative; z-index: 1;
+    }
+    .auth-left {
+      display: flex; flex-direction: column;
+      justify-content: center; padding: 4rem 3rem;
+      background: rgba(123,99,248,0.04);
+      border-right: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .auth-left::before {
+      content: '';
+      position: absolute; width: 500px; height: 500px;
+      top: -100px; left: -100px;
+      background: radial-gradient(circle, rgba(123,99,248,0.14) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .auth-left::after {
+      content: '';
+      position: absolute; width: 350px; height: 350px;
+      bottom: -50px; right: -50px;
+      background: radial-gradient(circle, rgba(233,109,182,0.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .al-content { position: relative; z-index: 1; }
+    .al-logo {
+      font-size: 1.5rem; font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 3rem;
+    }
+    .al-headline {
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 900; line-height: 1.2;
+      letter-spacing: -0.04em; margin-bottom: 1.2rem;
+    }
+    .al-headline em {
+      font-style: normal;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .al-sub { color: var(--text-dim); font-size: 0.94rem; line-height: 1.8; margin-bottom: 2.5rem; }
+    .al-chips { display: flex; flex-direction: column; gap: 0.8rem; }
+    .al-chip { display: flex; align-items: center; gap: 0.75rem; font-size: 0.86rem; color: var(--text-sub); }
+    .al-chip-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(123,99,248,0.1);
+      border: 1px solid rgba(123,99,248,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .auth-right {
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .auth-box { width: 100%; max-width: 420px; }
+    .auth-box h2 {
+      font-size: 1.5rem; font-weight: 900;
+      letter-spacing: -0.03em; margin-bottom: 0.4rem;
+    }
+    .auth-sub { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 2rem; }
+    .error-msg {
+      background: rgba(244,98,106,0.08); border: 1px solid rgba(244,98,106,0.22);
+      color: #ffb3b3; border-radius: var(--r-sm);
+      padding: 0.62rem 1rem; font-size: 0.83rem; margin-bottom: 1rem; display: none;
+    }
+    .success-msg {
+      background: rgba(16,217,160,0.08); border: 1px solid rgba(16,217,160,0.22);
+      color: #7fffd4; border-radius: var(--r-sm);
+      padding: 0.62rem 1rem; font-size: 0.83rem; margin-bottom: 1rem; display: none;
+    }
+    .pw-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.32rem; }
+    .divider-or {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin: 1.3rem 0; color: var(--text-dim); font-size: 0.78rem;
+    }
+    .divider-or::before,.divider-or::after{content:'';flex:1;height:1px;background:var(--border);}
+    .auth-foot { text-align: center; margin-top: 1.2rem; font-size: 0.84rem; color: var(--text-dim); }
+    .auth-foot a { font-weight: 600; }
+    @media(max-width:780px){
+      .auth-wrap{grid-template-columns:1fr;}
+      .auth-left{display:none;}
+    }
+  </style>
+</head>
+<body>
+  <div class="page-glow page-glow-1"></div>
+  <div class="page-glow page-glow-2"></div>
+
+  <div class="auth-wrap">
+    <div class="auth-left">
+      <div class="al-content">
+        <div class="al-logo">🎤 SpeechCoach</div>
+        <div class="al-headline">지금 가입하고<br/><em>무료</em>로 시작하세요</div>
+        <p class="al-sub">AI가 당신의 목소리를 분석하고<br/>정확한 피드백으로 성장을 돕습니다.</p>
+        <div class="al-chips">
+          <div class="al-chip"><div class="al-chip-icon">📊</div>실시간 음성 분석 및 WPM 측정</div>
+          <div class="al-chip"><div class="al-chip-icon">🤫</div>침묵 감지 & 습관어 분석</div>
+          <div class="al-chip"><div class="al-chip-icon">🏆</div>100점 종합 점수 & AI 피드백</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-right">
+      <div class="auth-box">
+        <h2>계정 만들기</h2>
+        <p class="auth-sub">무료로 가입하고 연습을 시작하세요</p>
+
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="success-msg" id="successMsg"></div>
+
+        <form id="signupForm">
+          <div class="form-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" placeholder="4~16자 영문, 숫자" autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" placeholder="8자 이상" autocomplete="new-password" />
+            <p class="pw-hint">영문, 숫자 포함 8자 이상을 권장합니다.</p>
+          </div>
+          <div class="form-group">
+            <label for="passwordConfirm">비밀번호 확인</label>
+            <input type="password" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" placeholder="example@email.com" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label class="checkbox-group">
+              <input type="checkbox" id="agreeTerms" />
+              <span>서비스 이용약관 및 개인정보 처리방침에 동의합니다</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full btn-lg">회원가입</button>
+        </form>
+
+        <div class="divider-or">또는</div>
+        <div class="auth-foot">이미 계정이 있으신가요? <a href="login.html">로그인</a></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const passwordConfirm = document.getElementById('passwordConfirm').value;
+      const email = document.getElementById('email').value.trim();
+      const agreeTerms = document.getElementById('agreeTerms').checked;
+      const err = document.getElementById('errorMsg');
+      const ok  = document.getElementById('successMsg');
+      err.style.display = ok.style.display = 'none';
+      if (!username||!password||!passwordConfirm||!email){err.textContent='모든 항목을 입력해주세요.';err.style.display='block';return;}
+      if (username.length<4||username.length>16){err.textContent='아이디는 4~16자로 입력해주세요.';err.style.display='block';return;}
+      if (password.length<8){err.textContent='비밀번호는 8자 이상이어야 합니다.';err.style.display='block';return;}
+      if (password!==passwordConfirm){err.textContent='비밀번호가 일치하지 않습니다.';err.style.display='block';return;}
+      if (!email.includes('@')){err.textContent='올바른 이메일 형식을 입력해주세요.';err.style.display='block';return;}
+      if (!agreeTerms){err.textContent='이용약관에 동의해주세요.';err.style.display='block';return;}
+      const result = signup(username, password, email);
+      if (result.success) {
+        ok.textContent = '회원가입이 완료되었습니다! 로그인 페이지로 이동합니다...';
+        ok.style.display = 'block';
+        setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+      } else {
+        err.textContent = result.message; err.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

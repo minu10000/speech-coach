@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 프로필 — SpeechCoach</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .profile-wrap {
+      max-width: 900px; margin: 0 auto;
+      padding: 2.8rem 1.5rem 6rem;
+      position: relative; z-index: 1;
+    }
+    .pg-header { margin-bottom: 2rem; }
+    .pg-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.03em; }
+    .pg-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem; }
+
+    /* profile card */
+    .profile-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-2xl); padding: 2.5rem 2rem;
+      margin-bottom: 1.5rem; position: relative; overflow: hidden;
+      display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;
+    }
+    .profile-card::before {
+      content: '';
+      position: absolute; width: 500px; height: 350px;
+      top: -100px; right: -100px;
+      background: radial-gradient(ellipse, rgba(123,99,248,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* profile image */
+    .profile-img-wrap {
+      position: relative; flex-shrink: 0;
+    }
+    .profile-img {
+      width: 140px; height: 140px; border-radius: 50%;
+      object-fit: cover; border: 3px solid var(--border);
+      background: linear-gradient(135deg, rgba(123,99,248,0.2), rgba(168,85,247,0.2));
+    }
+    .profile-img-edit {
+      position: absolute; bottom: 5px; right: 5px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--grad); border: 2px solid var(--card);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform 0.15s;
+    }
+    .profile-img-edit:hover { transform: scale(1.1); }
+    .profile-img-edit svg { width: 16px; height: 16px; fill: #fff; }
+    #profileInput { display: none; }
+
+    /* profile info */
+    .profile-info { flex: 1; min-width: 250px; position: relative; z-index: 1; }
+    .profile-name-wrap {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin-bottom: 0.5rem; flex-wrap: wrap;
+    }
+    .profile-name {
+      font-size: 1.8rem; font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .profile-name-edit {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: transparent; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .profile-name-edit:hover { border-color: var(--border-p); background: rgba(123,99,248,0.1); }
+    .profile-name-edit svg { width: 14px; height: 14px; fill: var(--text-sub); }
+
+    .profile-bio-wrap {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+    }
+    .profile-bio-edit {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: transparent; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+    }
+    .profile-bio-edit:hover { border-color: var(--border-p); background: rgba(123,99,248,0.1); }
+    .profile-bio-edit svg { width: 14px; height: 14px; fill: var(--text-sub); }
+
+    .profile-joined {
+      font-size: 0.82rem; color: var(--text-dim); margin-bottom: 1.2rem;
+    }
+    .profile-bio {
+      font-size: 0.9rem; color: var(--text-sub); line-height: 1.7;
+      max-width: 500px;
+    }
+    .profile-bio.empty {
+      font-style: italic; color: var(--text-dim);
+    }
+
+    /* edit modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-content {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-2xl); padding: 2rem;
+      width: 90%; max-width: 420px;
+      position: relative;
+    }
+    .modal-title {
+      font-size: 1.2rem; font-weight: 800;
+      margin-bottom: 1.5rem; text-align: center;
+    }
+    .modal-input {
+      width: 100%; padding: 0.9rem 1.1rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r-lg); color: var(--text);
+      font-size: 0.95rem; margin-bottom: 1rem;
+      transition: border-color 0.15s;
+    }
+    .modal-input:focus {
+      outline: none; border-color: var(--border-p);
+    }
+    .modal-actions {
+      display: flex; gap: 0.7rem; justify-content: flex-end;
+      margin-top: 1.2rem;
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: transparent; border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close svg { width: 18px; height: 18px; fill: var(--text-dim); }
+
+    /* stats section */
+    .section-title {
+      font-size: 1.05rem; font-weight: 800;
+      margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-title::before {
+      content: ''; display: block; width: 4px; height: 18px;
+      background: var(--grad); border-radius: 99px;
+    }
+
+    /* stats grid */
+    .stats-overview {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    @media(max-width:650px){ .stats-overview{grid-template-columns:repeat(2,1fr);} }
+
+    .stat-overview-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.3rem; text-align: center;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .stat-overview-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .stat-ov-icon { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+    .stat-ov-value {
+      font-size: 1.5rem; font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-ov-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+    /* chart & recent */
+    .detail-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    @media(max-width:750px){ .detail-section{grid-template-columns:1fr;} }
+
+    .chart-box, .recent-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.5rem;
+    }
+    .chart-container {
+      position: relative; height: 250px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* recent records */
+    .recent-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+    }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-date { font-size: 0.78rem; color: var(--text-dim); }
+    .recent-score {
+      font-size: 1.1rem; font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* skill bars */
+    .skill-section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .skill-item { margin-bottom: 1.2rem; }
+    .skill-item:last-child { margin-bottom: 0; }
+    .skill-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 0.4rem;
+    }
+    .skill-name { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); }
+    .skill-value { font-size: 0.8rem; font-weight: 700; color: var(--text); }
+    .skill-bar {
+      height: 8px; background: var(--border);
+      border-radius: 99px; overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%; background: var(--grad);
+      border-radius: 99px; width: 0%;
+      transition: width 1s ease-out;
+    }
+
+    /* badge section */
+    .badge-section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .badge-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.8rem;
+    }
+    .badge-item {
+      text-align: center; padding: 1rem 0.5rem;
+      border-radius: var(--r-lg);
+      background: rgba(123,99,248,0.05);
+      border: 1px solid rgba(123,99,248,0.15);
+      transition: transform 0.15s;
+    }
+    .badge-item:hover { transform: scale(1.05); }
+    .badge-icon { font-size: 2rem; display: block; margin-bottom: 0.3rem; }
+    .badge-name { font-size: 0.7rem; font-weight: 700; color: var(--text-sub); }
+    .badge-item.locked {
+      opacity: 0.4; filter: grayscale(1);
+    }
+
+    /* empty state */
+    .empty-state {
+      text-align: center; padding: 3rem 2rem; color: var(--text-dim);
+    }
+    .empty-state .e-icon { font-size: 3rem; opacity: 0.4; display: block; margin-bottom: 0.8rem; }
+    .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text-sub); margin-bottom: 0.4rem; }
+    .empty-state p { font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="page-glow page-glow-1"></div>
+  <div class="page-glow page-glow-2"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="logo">🎤 SpeechCoach</a>
+    <ul class="nav-links">
+      <li><a href="practice.html">연습하기</a></li>
+      <li><a href="stats.html">내 기록</a></li>
+      <li><a href="login.html">로그인</a></li>
+    </ul>
+  </nav>
+
+  <div class="profile-wrap">
+    <div class="pg-header">
+      <h1>내 프로필</h1>
+      <p>프로필 정보와 연습 통계를 확인하세요</p>
+    </div>
+
+    <!-- 프로필 카드 -->
+    <div class="profile-card">
+      <div class="profile-img-wrap">
+        <img src="" alt="프로필" class="profile-img" id="profileImg" />
+        <label class="profile-img-edit" for="profileInput">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </label>
+        <input type="file" id="profileInput" accept="image/*" />
+      </div>
+      <div class="profile-info">
+        <div class="profile-name-wrap">
+          <span class="profile-name" id="profileName">게스트</span>
+          <button class="profile-name-edit" id="editNameBtn" title="닉네임 변경">
+            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+        </div>
+        <div class="profile-joined" id="profileJoined">가입일: --</div>
+        <div class="profile-bio-wrap">
+          <div class="profile-bio empty" id="profileBio">
+            아직 자기소개를 작성하지 않았습니다.
+          </div>
+          <button class="profile-bio-edit" id="editBioBtn" title="자기소개 수정">
+            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 종합 통계 -->
+    <div class="section-title">📊 종합 통계</div>
+    <div class="stats-overview" id="statsOverview">
+      <div class="stat-overview-card">
+        <span class="stat-ov-icon">📋</span>
+        <div class="stat-ov-value" id="totalCount">0</div>
+        <div class="stat-ov-label">총 연습 횟수</div>
+      </div>
+      <div class="stat-overview-card">
+        <span class="stat-ov-icon">⏱</span>
+        <div class="stat-ov-value" id="totalTime">0분</div>
+        <div class="stat-ov-label">총 연습 시간</div>
+      </div>
+      <div class="stat-overview-card">
+        <span class="stat-ov-icon">🏆</span>
+        <div class="stat-ov-value" id="avgScore">0</div>
+        <div class="stat-ov-label">평균 점수</div>
+      </div>
+      <div class="stat-overview-card">
+        <span class="stat-ov-icon">📈</span>
+        <div class="stat-ov-value" id="bestScore">0</div>
+        <div class="stat-ov-label">최고 점수</div>
+      </div>
+    </div>
+
+    <!-- 스킬 분석 -->
+    <div class="skill-section">
+      <div class="section-title" style="margin-bottom:1rem;">🎯 스킬 분석</div>
+      <div class="skill-item">
+        <div class="skill-header">
+          <span class="skill-name">🤫 침묵 관리</span>
+          <span class="skill-value" id="skillSilence">0점</span>
+        </div>
+        <div class="skill-bar">
+          <div class="skill-fill" id="skillSilenceBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-header">
+          <span class="skill-name">⚡ 말하기 속도</span>
+          <span class="skill-value" id="skillSpeed">0점</span>
+        </div>
+        <div class="skill-bar">
+          <div class="skill-fill" id="skillSpeedBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-header">
+          <span class="skill-name">💬 언어 습관</span>
+          <span class="skill-value" id="skillFiller">0점</span>
+        </div>
+        <div class="skill-bar">
+          <div class="skill-fill" id="skillFillerBar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-header">
+          <span class="skill-name">🗣 발음/발화량</span>
+          <span class="skill-value" id="skillWords">0점</span>
+        </div>
+        <div class="skill-bar">
+          <div class="skill-fill" id="skillWordsBar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <!-- 레이더 차트 -->
+      <div class="chart-box">
+        <div class="section-title" style="margin-bottom:1rem;">영역별能力分析</div>
+        <div class="chart-container">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 최근 기록 -->
+      <div class="recent-box">
+        <div class="section-title" style="margin-bottom:1rem;">🕐 최근 기록</div>
+        <div id="recentRecords">
+          <div class="empty-state">
+            <span class="e-icon">📝</span>
+            <h3>아직 기록이 없습니다</h3>
+            <p>연습을 시작해보세요!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 뱃지 -->
+    <div class="badge-section">
+      <div class="section-title" style="margin-bottom:1rem;">🏅 획득 뱃지</div>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem;">
+      <a href="stats.html" class="btn btn-outline">전체 기록 보기</a>
+      <a href="practice.html" class="btn btn-primary">연습하기</a>
+    </div>
+  </div>
+
+  <!-- 닉네임 변경 모달 -->
+  <div class="modal-overlay" id="nameModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeNameModal()">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+      <div class="modal-title">닉네임 변경</div>
+      <input type="text" class="modal-input" id="newNameInput" placeholder="새 닉네임을 입력하세요" maxlength="20" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeNameModal()">취소</button>
+        <button class="btn btn-primary" onclick="saveNewName()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 자기소개 수정 모달 -->
+  <div class="modal-overlay" id="bioModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeBioModal()">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+      <div class="modal-title">자기소개 수정</div>
+      <textarea class="modal-input" id="newBioInput" placeholder="자기소개를 입력하세요" maxlength="200" rows="4" style="resize:none;"></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeBioModal()">취소</button>
+        <button class="btn btn-primary" onclick="saveNewBio()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>
