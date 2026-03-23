@@ -138,9 +138,33 @@ function createRadarChart(ctx, scores) {
 
 function renderFeedback() {
   const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-  const recordKey = user ? 'sc_last_record_' + user.id : 'sc_last_record';
-  const record = JSON.parse(localStorage.getItem(recordKey) || 'null');
   const container = document.getElementById('feedbackContent');
+
+  // 로그인 체크 - 게스트 사용자는 제한
+  if (!user) {
+    // 게스트 사용자는 로그인 유도 메시지 표시
+    container.innerHTML = `
+      <div class="no-data">
+        <span class="nd-icon">🔒</span>
+        <h3>로그인이 필요한 기능입니다</h3>
+        <p>AI 상세 피드백은 로그인한 사용자만 이용할 수 있습니다.<br/>로그인하고 더 많은 기능을 경험하세요!</p>
+        <div style="display:flex;gap:0.8rem;justify-content:center;margin-top:1.5rem;">
+          <a href="login.html" class="btn btn-primary btn-lg">로그인</a>
+          <a href="signup.html" class="btn btn-outline btn-lg">회원가입</a>
+        </div>
+      </div>
+    `;
+    
+    // 네비게이션 바 업데이트
+    if (typeof applyNavAuth === 'function') {
+      applyNavAuth();
+    }
+    return;
+  }
+
+  const recordKey = user ? 'sc_last_record_' + user.id : 'sc_guest_record';
+  const recordStorage = user ? localStorage : sessionStorage;
+  const record = JSON.parse(recordStorage.getItem(recordKey) || 'null');
 
   if (!record) {
     container.innerHTML = `

@@ -6,6 +6,12 @@
   <title>스피치 코치 — AI 발표 연습 플랫폼</title>
   <link rel="stylesheet" href="css/style.css" />
   <style>
+    /* 로그인 상태에 따른 버튼 표시/숨김 */
+    li.guest-only { display: none !important; }
+    li.auth-only { display: flex !important; }
+    body:not(.logged-in) li.guest-only { display: flex !important; }
+    body:not(.logged-in) li.auth-only { display: none !important; }
+    
     /* ═══ HERO ═══ */
     .hero {
       position: relative; z-index: 1;
@@ -307,9 +313,9 @@
   <nav class="navbar">
     <a href="index.html" class="logo">🎤 SpeechCoach</a>
     <ul class="nav-links">
-      <li><a href="profile.html">프로필</a></li>
-      <li><a href="login.html">로그인</a></li>
-      <li><a href="signup.html">회원가입</a></li>
+      <li class="auth-only"><a href="profile.html">프로필</a></li>
+      <li class="guest-only"><a href="login.html">로그인</a></li>
+      <li class="guest-only"><a href="signup.html">회원가입</a></li>
       <li><a href="practice.html" class="nav-cta">연습 시작</a></li>
     </ul>
   </nav>
@@ -337,7 +343,7 @@
 
     <div class="hero-ctas">
       <a href="practice.html" class="btn btn-primary btn-lg">무료로 시작하기 →</a>
-      <a href="signup.html" class="btn btn-outline btn-lg">회원가입</a>
+      <a href="signup.html" class="btn btn-outline btn-lg guest-only">회원가입</a>
     </div>
 
     <div class="stat-strip">
@@ -430,7 +436,7 @@
       <p>회원가입 없이도 연습을 시작할 수 있습니다.<br/>더 많은 기능은 로그인 후 이용 가능합니다.</p>
       <div class="cta-btns">
         <a href="practice.html" class="btn btn-primary btn-lg">연습 시작하기</a>
-        <a href="login.html" class="btn btn-outline btn-lg">로그인</a>
+        <a href="login.html" class="btn btn-outline btn-lg guest-only">로그인</a>
       </div>
     </div>
   </section>

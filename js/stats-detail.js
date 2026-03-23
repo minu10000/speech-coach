@@ -316,30 +316,12 @@ function seekAudio(event) {
 function selectCompareRecord() {
   const records = loadRecords();
   const currentId = parseInt(getRecordIdFromUrl());
-  
-  // 현재 기록을 제외한 다른 기록들
-  const otherRecords = records.filter(r => r.id !== currentId);
-  
-  if (otherRecords.length === 0) {
-    alert('비교할 다른 기록이 없습니다.');
-    return;
-  }
-  
-  // 선택할 기록 목록 표시
-  const options = otherRecords.map((r, i) => 
-    `${i + 1}. ${r.date} - ${r.score}점`
-  ).join('\n');
-  
-  const selected = prompt(`비교할 기록을 선택하세요:\n\n${options}\n\n번호를 입력하세요:`);
-  const index = parseInt(selected) - 1;
-  
-  if (isNaN(index) || index < 0 || index >= otherRecords.length) {
-    alert('올바른 번호를 입력해주세요.');
-    return;
-  }
-  
-  compareRecord = otherRecords[index];
-  renderCompareSection();
+
+  // 새로운 모달 사용
+  showCompareModal(records, currentId, function(selectedRecord) {
+    compareRecord = selectedRecord;
+    renderCompareSection();
+  });
 }
 
 function renderCompareSection() {
@@ -579,4 +561,10 @@ async function initAudioPlayer() {
 }
 
 // 페이지 로드 시 실행
-renderDetail();
+document.addEventListener('DOMContentLoaded', function() {
+  // 네비게이션 바 로그인 상태 반영
+  if (typeof applyNavAuth === 'function') {
+    applyNavAuth();
+  }
+  renderDetail();
+});

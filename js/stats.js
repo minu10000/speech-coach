@@ -1,6 +1,11 @@
 // ===== stats.js =====
 
 document.addEventListener('DOMContentLoaded', function () {
+  // 네비게이션 바 로그인 상태 반영
+  if (typeof applyNavAuth === 'function') {
+    applyNavAuth();
+  }
+
   const user = getCurrentUser();
 
   const totalCountEl = document.getElementById('totalCount');
@@ -21,7 +26,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (user) {
       records = getUserRecords(user.id);
     } else {
-      records = JSON.parse(localStorage.getItem('sc_records') || '[]');
+      // 게스트는 sessionStorage 에서 읽기 (창 닫으면 삭제됨)
+      const guestRecord = sessionStorage.getItem('sc_guest_record');
+      if (guestRecord) {
+        records = [JSON.parse(guestRecord)];
+      } else {
+        records = [];
+      }
     }
     return records;
   }
@@ -82,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (user) {
       clearUserRecords(user.id);
     } else {
-      localStorage.removeItem('sc_records');
+      sessionStorage.removeItem('sc_guest_record');
     }
     render();
   };

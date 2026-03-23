@@ -344,3 +344,489 @@ a:hover { color: var(--p2); }
 @media (max-width: 480px) {
   .btn-lg { padding: 0.82rem 1.5rem; font-size: 0.95rem; }
 }
+
+/* ════════════════ TOAST NOTIFICATION ════════════════ */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-container.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.4rem;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(123, 99, 248, 0.3);
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 40px rgba(123, 99, 248, 0.15);
+  min-width: 320px;
+  max-width: 480px;
+  pointer-events: auto;
+  animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.toast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7b63f8, #e96db6, #38bdf8);
+  animation: progressLine 3s linear forwards;
+}
+
+@keyframes progressLine {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(123, 99, 248, 0.15);
+  border: 1px solid rgba(123, 99, 248, 0.3);
+}
+
+.toast-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+
+.toast-icon-success {
+  background: rgba(16, 217, 160, 0.15);
+  border-color: rgba(16, 217, 160, 0.3);
+}
+
+.toast-icon-warning {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.toast-icon-error {
+  background: rgba(244, 98, 106, 0.15);
+  border-color: rgba(244, 98, 106, 0.3);
+}
+
+.toast-icon-info {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.toast-message {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+}
+
+.toast-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toast-close svg {
+  width: 16px;
+  height: 16px;
+  fill: rgba(255, 255, 255, 0.6);
+}
+
+/* Toast variants */
+.toast-success .toast-icon {
+  background: rgba(16, 217, 160, 0.15);
+  border-color: rgba(16, 217, 160, 0.3);
+}
+
+.toast-warning .toast-icon {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.toast-error .toast-icon {
+  background: rgba(244, 98, 106, 0.15);
+  border-color: rgba(244, 98, 106, 0.3);
+}
+
+.toast-info .toast-icon {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* ════════════════ COMPARE MODAL ════════════════ */
+.compare-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: modalFadeIn 0.3s ease forwards;
+}
+
+.compare-modal-overlay.show {
+  display: flex;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.compare-modal {
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(123, 99, 248, 0.3);
+  border-radius: 24px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 60px rgba(123, 99, 248, 0.15);
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: relative;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.compare-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(123, 99, 248, 0.2);
+}
+
+.compare-modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  letter-spacing: -0.02em;
+}
+
+.compare-modal-title::before {
+  content: '📊';
+  font-size: 1.3rem;
+}
+
+.compare-modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.compare-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.compare-modal-close svg {
+  width: 18px;
+  height: 18px;
+  fill: rgba(255, 255, 255, 0.6);
+}
+
+.compare-record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.compare-record-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.compare-record-item:hover {
+  background: rgba(123, 99, 248, 0.1);
+  border-color: rgba(123, 99, 248, 0.3);
+  transform: translateX(4px);
+}
+
+.compare-record-item.selected {
+  background: rgba(123, 99, 248, 0.15);
+  border-color: rgba(123, 99, 248, 0.5);
+  box-shadow: 0 0 0 1px rgba(123, 99, 248, 0.2);
+}
+
+.compare-record-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(123, 99, 248, 0.15);
+  border: 1px solid rgba(123, 99, 248, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.compare-record-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.compare-record-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.25rem;
+}
+
+.compare-record-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.compare-record-score {
+  font-size: 1.3rem;
+  font-weight: 900;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex-shrink: 0;
+}
+
+.compare-record-arrow {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.compare-record-item:hover .compare-record-arrow {
+  opacity: 1;
+}
+
+.compare-record-arrow svg {
+  width: 14px;
+  height: 14px;
+  fill: rgba(255, 255, 255, 0.5);
+}
+
+/* Compare result toast */
+.compare-result-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  z-index: 9998;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(123, 99, 248, 0.3);
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  min-width: 340px;
+  max-width: 480px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.compare-result-toast.hiding {
+  animation: toastSlideOut 0.4s ease forwards;
+}
+
+.compare-result-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.compare-result-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+
+.compare-result-content {
+  flex: 1;
+}
+
+.compare-result-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.compare-result-message {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+
+.compare-result-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.compare-result-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.compare-result-close svg {
+  width: 16px;
+  height: 16px;
+  fill: rgba(255, 255, 255, 0.6);
+}
+
+/* Scrollbar for compare modal */
+.compare-modal::-webkit-scrollbar,
+.compare-record-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.compare-modal::-webkit-scrollbar-track,
+.compare-record-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.compare-modal::-webkit-scrollbar-thumb,
+.compare-record-list::-webkit-scrollbar-thumb {
+  background: rgba(123, 99, 248, 0.3);
+  border-radius: 99px;
+}
+
+.compare-modal::-webkit-scrollbar-thumb:hover,
+.compare-record-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(123, 99, 248, 0.5);
+}

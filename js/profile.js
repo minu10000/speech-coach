@@ -31,14 +31,15 @@ function openDatabase() {
 
 openDatabase().catch(console.error);
 
-// 사용자 정보 가져오기
+// 사용자 정보 가져오기 (auth.js 와 통일)
 function getCurrentUser() {
-  return JSON.parse(localStorage.getItem('sc_current_user') || 'null');
-}
-
-// 사용자 정보 저장
-function saveCurrentUser(user) {
-  localStorage.setItem('sc_current_user', JSON.stringify(user));
+  const session = localStorage.getItem('sc_session');
+  if (!session) return null;
+  try {
+    return JSON.parse(session);
+  } catch {
+    return null;
+  }
 }
 
 // 연습 기록 가져오기
@@ -134,13 +135,20 @@ function loadProfileInfo() {
 document.getElementById('profileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
-  
+
   const reader = new FileReader();
   reader.onload = function(event) {
     const base64 = event.target.result;
-    const user = getCurrentUser() || {};
+    const user = getCurrentUser();
+    if (!user) return;
+    
+    // auth.js 의 updateCurrentUser 사용
     user.profileImage = base64;
-    saveCurrentUser(user);
+    if (typeof updateCurrentUser === 'function') {
+      updateCurrentUser(user);
+    } else {
+      saveCurrentUser(user);
+    }
     document.getElementById('profileImg').src = base64;
   };
   reader.readAsDataURL(file);
@@ -160,17 +168,33 @@ function closeNameModal() {
 function saveNewName() {
   const newName = document.getElementById('newNameInput').value.trim();
   if (!newName) {
-    alert('닉네임을 입력해주세요.');
+    showToast({
+      type: 'warning',
+      title: '닉네임을 입력해주세요',
+      duration: 3000
+    });
     return;
   }
 
-  const user = getCurrentUser() || {};
+  const user = getCurrentUser();
+  if (!user) return;
+  
   user.nickname = newName;
-  saveCurrentUser(user);
+  
+  // auth.js 의 updateCurrentUser 사용
+  if (typeof updateCurrentUser === 'function') {
+    updateCurrentUser(user);
+  } else {
+    saveCurrentUser(user);
+  }
 
   document.getElementById('profileName').textContent = newName;
   closeNameModal();
-  alert('닉네임이 변경되었습니다!');
+  showToast({
+    type: 'success',
+    title: '닉네임이 변경되었습니다!',
+    duration: 3000
+  });
 }
 
 document.getElementById('editNameBtn').addEventListener('click', openNameModal);
@@ -188,10 +212,18 @@ function closeBioModal() {
 
 function saveNewBio() {
   const newBio = document.getElementById('newBioInput').value.trim();
+
+  const user = getCurrentUser();
+  if (!user) return;
   
-  const user = getCurrentUser() || {};
   user.bio = newBio;
-  saveCurrentUser(user);
+  
+  // auth.js 의 updateCurrentUser 사용
+  if (typeof updateCurrentUser === 'function') {
+    updateCurrentUser(user);
+  } else {
+    saveCurrentUser(user);
+  }
 
   const bioEl = document.getElementById('profileBio');
   if (newBio) {
@@ -203,7 +235,11 @@ function saveNewBio() {
   }
 
   closeBioModal();
-  alert('자기소개가 저장되었습니다!');
+  showToast({
+    type: 'success',
+    title: '자기소개가 저장되었습니다!',
+    duration: 3000
+  });
 }
 
 document.getElementById('editBioBtn').addEventListener('click', openBioModal);
@@ -405,6 +441,11 @@ function loadBadges() {
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', function() {
+  // 네비게이션 바 로그인 상태 반영
+  if (typeof applyNavAuth === 'function') {
+    applyNavAuth();
+  }
+  
   loadProfileImage();
   loadProfileInfo();
   loadStats();

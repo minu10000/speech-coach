@@ -417,7 +417,7 @@ async function saveResult() {
   const wpm = totalSeconds > 0 ? Math.round(words.length / (totalSeconds / 60)) : 0;
   const silenceRate = totalSeconds > 0 ? Math.round((silenceSeconds / totalSeconds) * 100) : 0;
 
-  const fillers = ['음', '어', '그래서', '뭐', '그냥', '근데', '아'];
+  const fillers = ['음', '어', '그래서', '뭐', '그냥', '근데', '아', '저기', '그러니까'];
   let fillerCount = 0;
   fillers.forEach(f => {
     const regex = new RegExp(f, 'g');
@@ -425,17 +425,59 @@ async function saveResult() {
     if (matches) fillerCount += matches.length;
   });
 
+  // 최소 녹음 시간 체크 (5 초 미만 - 경고만 표시)
+  if (totalSeconds < 5) {
+    showToast({
+      type: 'warning',
+      title: '녹음 시간이 짧습니다',
+      message: '5 초 미만 녹음 (' + totalSeconds + '초) 은 정확한 분석이 어렵습니다. 10 초 이상 말하기를 추천합니다.',
+      duration: 4000,
+      icon: '⚠️'
+    });
+    // 저장 계속 진행
+  }
+
+  // 단어가 하나도 없는 경우
+  if (words.length === 0) {
+    showToast({
+      type: 'error',
+      title: '인식된 음성이 없습니다',
+      message: '말씀하신 내용이 인식되지 않았습니다. 다시 시도해주세요.',
+      duration: 4000,
+      icon: '❌'
+    });
+    return;
+  }
+
+  // 점수 계산 (더 엄격하고 정확하게 - 4 가지 항목 각 25 점)
   let score = 100;
-  if (silenceRate > 40) score -= 25;
-  else if (silenceRate > 20) score -= 12;
 
-  if (wpm < 100 || wpm > 250) score -= 20;
+  // 1. 침묵 비율 (25 점 감점)
+  if (silenceRate > 50) score -= 25;
+  else if (silenceRate > 35) score -= 18;
+  else if (silenceRate > 25) score -= 10;
+  else if (silenceRate > 15) score -= 5;
+
+  // 2. 말하기 속도 (25 점 감점)
+  if (wpm < 80 || wpm > 280) score -= 25;
+  else if (wpm < 100 || wpm > 250) score -= 18;
   else if (wpm < 130 || wpm > 220) score -= 10;
+  else if (wpm < 150 || wpm > 200) score -= 5;
 
-  score -= Math.min(fillerCount * 3, 20);
+  // 3. 추임새 (25 점 감점)
+  if (fillerCount > 10) score -= 25;
+  else if (fillerCount > 6) score -= 18;
+  else if (fillerCount > 3) score -= 10;
+  else if (fillerCount > 1) score -= 5;
 
-  if (words.length < 20) score -= 15;
-  score = Math.max(0, score);
+  // 4. 발화량 (25 점 감점)
+  if (words.length < 10) score -= 25;
+  else if (words.length < 20) score -= 18;
+  else if (words.length < 30) score -= 10;
+  else if (words.length < 50) score -= 5;
+
+  // 최소 점수 0 점
+  score = Math.max(0, Math.min(100, score));
 
   const record = {
     id: Date.now(),
@@ -448,7 +490,7 @@ async function saveResult() {
     wpm,
     fillerCount,
     score,
-    transcript: finalTranscript.trim().slice(0, 300),
+    transcript: finalTranscript.trim().slice(0, 500),
   };
 
   // 오디오 저장
@@ -465,15 +507,31 @@ async function saveResult() {
   if (user) {
     saveUserRecord(user.id, record);
     localStorage.setItem('sc_last_record_' + user.id, JSON.stringify(record));
+    showToast({
+      type: 'success',
+      title: '결과가 저장되었습니다!',
+      message: 'AI 피드백 페이지에서 상세 분석을 확인하세요.',
+      duration: 3000
+    });
+    setTimeout(() => {
+      window.location.href = 'feedback.html';
+    }, 1000);
   } else {
     const records = JSON.parse(localStorage.getItem('sc_records') || '[]');
     records.unshift(record);
     localStorage.setItem('sc_records', JSON.stringify(records));
     localStorage.setItem('sc_last_record', JSON.stringify(record));
+    showToast({
+      type: 'info',
+      title: '결과가 저장되었습니다',
+      message: '게스트 모드 - 창을 닫으면 기록이 삭제됩니다',
+      duration: 4000,
+      icon: 'lock'
+    });
+    setTimeout(() => {
+      window.location.href = 'stats.html';
+    }, 1500);
   }
-
-  alert('결과가 저장되었습니다! AI 피드백 페이지에서 상세 분석을 확인하세요.');
-  window.location.href = 'feedback.html';
 }
 
 function resetPractice() {
