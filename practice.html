@@ -205,6 +205,44 @@
       font-size: 0.78rem; color: var(--text-dim);
       min-width: 80px; text-align: right;
     }
+
+    /* Language Switcher */
+    .lang-switcher { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; }
+    .lang-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem;
+      background: rgba(30, 30, 40, 0.85); backdrop-filter: blur(12px);
+      border: 1px solid rgba(123, 99, 248, 0.35); border-radius: 14px;
+      color: #fff; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: all 0.25s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .lang-btn:hover {
+      background: rgba(123, 99, 248, 0.25); border-color: rgba(123, 99, 248, 0.7);
+      box-shadow: 0 6px 25px rgba(123, 99, 248, 0.25); transform: translateY(-2px);
+    }
+    .lang-btn svg { width: 18px; height: 18px; transition: transform 0.25s ease; }
+    .lang-btn.active svg { transform: rotate(180deg); }
+    .lang-dropdown {
+      position: absolute; bottom: calc(100% + 0.75rem); right: 0; min-width: 160px;
+      background: rgba(20, 20, 28, 0.95); backdrop-filter: blur(16px);
+      border: 1px solid rgba(123, 99, 248, 0.4); border-radius: 14px; padding: 0.5rem;
+      opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .lang-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .lang-dropdown::before {
+      content: ''; position: absolute; bottom: -6px; right: 20px; width: 12px; height: 12px;
+      background: rgba(20, 20, 28, 0.95); border-right: 1px solid rgba(123, 99, 248, 0.4);
+      border-bottom: 1px solid rgba(123, 99, 248, 0.4); transform: rotate(45deg);
+    }
+    .lang-option {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.85rem;
+      border-radius: 10px; color: #e0e0e0; font-size: 0.87rem;
+      cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+    }
+    .lang-option:hover { background: rgba(123, 99, 248, 0.2); color: #fff; }
+    .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
+    .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
+    @media(max-width:768px){ .lang-switcher { bottom: 1rem; right: 1rem; } .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; } }
   </style>
 </head>
 <body>
@@ -214,36 +252,54 @@
   <nav class="navbar">
     <a href="index.html" class="logo">🎤 SpeechCoach</a>
     <ul class="nav-links">
-      <li><a href="practice.html">연습하기</a></li>
-      <li><a href="stats.html">내 기록</a></li>
-      <li class="auth-only"><a href="profile.html">프로필</a></li>
-      <li class="guest-only"><a href="login.html">로그인</a></li>
+      <li><a href="practice.html" data-i18n="nav-practice">연습하기</a></li>
+      <li><a href="stats.html" data-i18n="nav-stats">내 기록</a></li>
+      <li class="auth-only"><a href="profile.html" data-i18n="nav-profile">프로필</a></li>
+      <li class="guest-only"><a href="login.html" data-i18n="nav-login">로그인</a></li>
     </ul>
   </nav>
 
+  <div class="lang-switcher">
+    <button class="lang-btn" id="langBtn" aria-label="언어 선택">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.785 10.77 8.07 15.61 3 18.129" />
+      </svg>
+      <span id="currentLang">한국어</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <a href="#" class="lang-option active" data-lang="ko" data-label="한국어"><span class="lang-flag">🇰🇷</span><span>한국어</span></a>
+      <a href="#" class="lang-option" data-lang="en" data-label="English"><span class="lang-flag">🇺🇸</span><span>English</span></a>
+      <a href="#" class="lang-option" data-lang="zh" data-label="中文"><span class="lang-flag">🇨🇳</span><span>中文</span></a>
+      <a href="#" class="lang-option" data-lang="ja" data-label="日本語"><span class="lang-flag">🇯🇵</span><span>日本語</span></a>
+      <a href="#" class="lang-option" data-lang="es" data-label="Español"><span class="lang-flag">🇪🇸</span><span>Español</span></a>
+      <a href="#" class="lang-option" data-lang="fr" data-label="Français"><span class="lang-flag">🇫🇷</span><span>Français</span></a>
+      <a href="#" class="lang-option" data-lang="de" data-label="Deutsch"><span class="lang-flag">🇩🇪</span><span>Deutsch</span></a>
+    </div>
+  </div>
+
   <div class="practice-wrap">
     <div class="pg-header">
-      <h1>스피치 연습</h1>
-      <p>버튼을 눌러 연습을 시작하세요. 마이크 권한이 필요합니다.</p>
+      <h1 data-i18n="practice-title">스피치 연습</h1>
+      <p data-i18n="practice-sub">버튼을 눌러 연습을 시작하세요. 마이크 권한이 필요합니다.</p>
     </div>
 
     <div class="timer-card" id="timerCard">
       <div class="timer-num" id="timerDisplay">00:00</div>
       <div class="status-chip chip-ready" id="statusBadge">
         <span class="chip-dot"></span>
-        <span id="statusText">준비</span>
+        <span id="statusText" data-i18n="practice-status-ready">준비</span>
       </div>
     </div>
 
     <div class="controls">
-      <button class="btn btn-primary btn-lg" id="recordBtn" onclick="toggleRecording()">🎤 녹음 시작</button>
-      <button class="btn btn-ghost" id="resetBtn" onclick="resetPractice()">↺ 초기화</button>
+      <button class="btn btn-primary btn-lg" id="recordBtn" onclick="toggleRecording()" data-i18n="practice-btn-start">🎤 녹음 시작</button>
+      <button class="btn btn-ghost" id="resetBtn" onclick="resetPractice()" data-i18n="practice-btn-reset">↺ 초기화</button>
     </div>
 
     <div class="transcript-card" id="transcriptBox">
-      <div class="tc-label">🔤 음성 인식 텍스트</div>
+      <div class="tc-label" data-i18n="practice-transcript-label">🔤 음성 인식 텍스트</div>
       <div class="transcript-text" id="transcriptText">
-        <span class="transcript-placeholder">녹음을 시작하면 여기에 인식된 텍스트가 표시됩니다...</span>
+        <span class="transcript-placeholder" data-i18n="practice-transcript-ph">녹음을 시작하면 여기에 인식된 텍스트가 표시됩니다...</span>
       </div>
     </div>
 
@@ -251,43 +307,43 @@
       <div class="st-card">
         <span class="st-icon">⏱</span>
         <div class="st-val" id="totalTime">0:00</div>
-        <div class="st-lbl">전체 시간</div>
+        <div class="st-lbl" data-i18n="practice-stat-total">전체 시간</div>
       </div>
       <div class="st-card">
         <span class="st-icon">🗣</span>
         <div class="st-val" id="speakTime">0:00</div>
-        <div class="st-lbl">발화 시간</div>
+        <div class="st-lbl" data-i18n="practice-stat-speak">발화 시간</div>
       </div>
       <div class="st-card">
         <span class="st-icon">🤫</span>
         <div class="st-val" id="silenceTime">0:00</div>
-        <div class="st-lbl">침묵 시간</div>
+        <div class="st-lbl" data-i18n="practice-stat-silence">침묵 시간</div>
       </div>
       <div class="st-card">
         <span class="st-icon">📊</span>
         <div class="st-val" id="silenceRate">0%</div>
-        <div class="st-lbl">침묵 비율</div>
+        <div class="st-lbl" data-i18n="practice-stat-silence-rate">침묵 비율</div>
       </div>
       <div class="st-card">
         <span class="st-icon">💬</span>
         <div class="st-val" id="wordCount">0</div>
-        <div class="st-lbl">단어 수</div>
+        <div class="st-lbl" data-i18n="practice-stat-word">단어 수</div>
       </div>
       <div class="st-card">
         <span class="st-icon">⚡</span>
         <div class="st-val" id="wpm">0</div>
-        <div class="st-lbl">분당 단어(WPM)</div>
+        <div class="st-lbl" data-i18n="practice-stat-wpm">분당 단어(WPM)</div>
       </div>
     </div>
 
     <div class="feedback-card" id="feedbackBox" style="display:none;">
-      <div class="section-title">분석 결과</div>
+      <div class="section-title" data-i18n="practice-feedback-title">분석 결과</div>
       <div id="feedbackList"></div>
     </div>
 
     <!-- 오디오 플레이어 -->
     <div class="audio-player-wrap" id="audioPlayerWrap">
-      <div class="audio-player-title">🔊 내 녹음 파일</div>
+      <div class="audio-player-title" data-i18n="practice-audio-title">🔊 내 녹음 파일</div>
       <div class="audio-controls">
         <button class="audio-btn" id="audioPlayBtn" onclick="toggleAudioPlay()">
           <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -301,8 +357,8 @@
     </div>
 
     <div class="save-bar" id="saveSection" style="display:none;">
-      <a href="feedback.html" class="btn btn-outline">AI 상세 피드백 보기</a>
-      <button class="btn btn-success btn-lg" onclick="saveResult()">💾 결과 저장</button>
+      <a href="feedback.html" class="btn btn-outline" data-i18n="practice-btn-feedback">AI 상세 피드백 보기</a>
+      <button class="btn btn-success btn-lg" onclick="saveResult()" data-i18n="practice-btn-save">💾 결과 저장</button>
     </div>
   </div>
 
@@ -336,5 +392,6 @@
       document.getElementById('statusText').textContent = text;
     };
   </script>
+  <script src="js/i18n.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -303,6 +303,50 @@
       .feat-grid { grid-template-columns: 1fr; }
       .cta-inner { padding: 2.5rem 1.5rem; }
     }
+
+    /* Language Switcher */
+    .lang-switcher {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000;
+    }
+    .lang-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1rem; background: rgba(30, 30, 40, 0.85);
+      backdrop-filter: blur(12px); border: 1px solid rgba(123, 99, 248, 0.35);
+      border-radius: 14px; color: #fff; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.25s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .lang-btn:hover {
+      background: rgba(123, 99, 248, 0.25); border-color: rgba(123, 99, 248, 0.7);
+      box-shadow: 0 6px 25px rgba(123, 99, 248, 0.25); transform: translateY(-2px);
+    }
+    .lang-btn svg { width: 18px; height: 18px; transition: transform 0.25s ease; }
+    .lang-btn.active svg { transform: rotate(180deg); }
+    .lang-dropdown {
+      position: absolute; bottom: calc(100% + 0.75rem); right: 0; min-width: 160px;
+      background: rgba(20, 20, 28, 0.95); backdrop-filter: blur(16px);
+      border: 1px solid rgba(123, 99, 248, 0.4); border-radius: 14px; padding: 0.5rem;
+      opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .lang-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .lang-dropdown::before {
+      content: ''; position: absolute; bottom: -6px; right: 20px;
+      width: 12px; height: 12px; background: rgba(20, 20, 28, 0.95);
+      border-right: 1px solid rgba(123, 99, 248, 0.4);
+      border-bottom: 1px solid rgba(123, 99, 248, 0.4); transform: rotate(45deg);
+    }
+    .lang-option {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.85rem;
+      border-radius: 10px; color: #e0e0e0; font-size: 0.87rem;
+      cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+    }
+    .lang-option:hover { background: rgba(123, 99, 248, 0.2); color: #fff; }
+    .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
+    .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
+    @media(max-width:768px){
+      .lang-switcher { bottom: 1rem; right: 1rem; }
+      .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; }
+    }
   </style>
 </head>
 <body>
@@ -313,12 +357,44 @@
   <nav class="navbar">
     <a href="index.html" class="logo">🎤 SpeechCoach</a>
     <ul class="nav-links">
-      <li class="auth-only"><a href="profile.html">프로필</a></li>
-      <li class="guest-only"><a href="login.html">로그인</a></li>
-      <li class="guest-only"><a href="signup.html">회원가입</a></li>
-      <li><a href="practice.html" class="nav-cta">연습 시작</a></li>
+      <li class="auth-only"><a href="profile.html" data-i18n="nav-profile">프로필</a></li>
+      <li class="guest-only"><a href="login.html" data-i18n="nav-login">로그인</a></li>
+      <li class="guest-only"><a href="signup.html" data-i18n="nav-signup">회원가입</a></li>
+      <li><a href="practice.html" class="nav-cta" data-i18n="nav-start">연습 시작</a></li>
     </ul>
   </nav>
+
+  <div class="lang-switcher">
+    <button class="lang-btn" id="langBtn" aria-label="언어 선택">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.785 10.77 8.07 15.61 3 18.129" />
+      </svg>
+      <span id="currentLang">한국어</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <a href="#" class="lang-option active" data-lang="ko" data-label="한국어">
+        <span class="lang-flag">🇰🇷</span><span>한국어</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="en" data-label="English">
+        <span class="lang-flag">🇺🇸</span><span>English</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="zh" data-label="中文">
+        <span class="lang-flag">🇨🇳</span><span>中文</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="ja" data-label="日本語">
+        <span class="lang-flag">🇯🇵</span><span>日本語</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="es" data-label="Español">
+        <span class="lang-flag">🇪🇸</span><span>Español</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="fr" data-label="Français">
+        <span class="lang-flag">🇫🇷</span><span>Français</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="de" data-label="Deutsch">
+        <span class="lang-flag">🇩🇪</span><span>Deutsch</span>
+      </a>
+    </div>
+  </div>
 
   <!-- HERO -->
   <section class="hero">
@@ -327,37 +403,37 @@
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
 
-    <div class="hero-pill">
+    <div class="hero-pill" data-i18n="home-pill">
       <span class="dot"></span> AI 기반 스피치 코칭 플랫폼
     </div>
 
     <h1>
-      발표가 두렵지 않은<br/>
-      <em>당신</em>이 될 수 있습니다
+      <span data-i18n="home-title1">발표가 두렵지 않은</span><br/>
+      <em data-i18n="home-title2">당신</em><span data-i18n="home-title3">이 될 수 있습니다</span>
     </h1>
 
-    <p class="hero-sub">
+    <p class="hero-sub" data-i18n="home-sub">
       실시간 음성 분석과 AI 피드백으로 발표, 면접, 스피치 실력을
       빠르게 향상시키세요. 과학적 데이터로 약점을 정확히 파악하세요.
     </p>
 
     <div class="hero-ctas">
-      <a href="practice.html" class="btn btn-primary btn-lg">무료로 시작하기 →</a>
-      <a href="signup.html" class="btn btn-outline btn-lg guest-only">회원가입</a>
+      <a href="practice.html" class="btn btn-primary btn-lg" data-i18n="home-start-free">무료로 시작하기 →</a>
+      <a href="signup.html" class="btn btn-outline btn-lg guest-only" data-i18n="home-signup">회원가입</a>
     </div>
 
     <div class="stat-strip">
       <div class="stat-strip-item">
-        <div class="sn">실시간</div><div class="sl">음성 분석</div>
+        <div class="sn" data-i18n="home-stat-realtime">실시간</div><div class="sl" data-i18n="home-stat-realtime-sub">음성 분석</div>
       </div>
       <div class="stat-strip-item">
-        <div class="sn">AI</div><div class="sl">맞춤 피드백</div>
+        <div class="sn" data-i18n="home-stat-ai">AI</div><div class="sl" data-i18n="home-stat-ai-sub">맞춤 피드백</div>
       </div>
       <div class="stat-strip-item">
-        <div class="sn">100점</div><div class="sl">종합 평가</div>
+        <div class="sn" data-i18n="home-stat-score">100점</div><div class="sl" data-i18n="home-stat-score-sub">종합 평가</div>
       </div>
       <div class="stat-strip-item">
-        <div class="sn">무료</div><div class="sl">기본 이용</div>
+        <div class="sn" data-i18n="home-stat-free">무료</div><div class="sl" data-i18n="home-stat-free-sub">기본 이용</div>
       </div>
     </div>
   </section>
@@ -365,25 +441,25 @@
   <!-- HOW IT WORKS -->
   <section class="hiw">
     <div class="section-header">
-      <div class="section-eyebrow">How it works</div>
+      <div class="section-eyebrow" data-i18n="home-hiw-eyebrow">How it works</div>
       <h2>3단계로 실력을 키우세요</h2>
-      <p>복잡한 설정 없이 바로 시작할 수 있습니다</p>
+      <p data-i18n="home-hiw-sub">복잡한 설정 없이 바로 시작할 수 있습니다</p>
     </div>
     <div class="hiw-steps">
       <div class="step-card">
         <div class="step-num" data-n="1">🎤</div>
-        <h3>녹음 시작</h3>
-        <p>버튼 하나로 마이크를 켜고 자유롭게 스피치를 연습하세요. 별도 설치가 필요 없습니다.</p>
+        <h3 data-i18n="home-step1-title">녹음 시작</h3>
+        <p data-i18n="home-step1-desc">버튼 하나로 마이크를 켜고 자유롭게 스피치를 연습하세요. 별도 설치가 필요 없습니다.</p>
       </div>
       <div class="step-card">
         <div class="step-num" data-n="2">📊</div>
-        <h3>AI 실시간 분석</h3>
-        <p>침묵 비율, 말하기 속도, 습관어 등을 실시간으로 측정하고 즉각 데이터를 보여줍니다.</p>
+        <h3 data-i18n="home-step2-title">AI 실시간 분석</h3>
+        <p data-i18n="home-step2-desc">침묵 비율, 말하기 속도, 습관어 등을 실시간으로 측정하고 즉각 데이터를 보여줍니다.</p>
       </div>
       <div class="step-card">
         <div class="step-num" data-n="3">🏆</div>
-        <h3>피드백으로 성장</h3>
-        <p>상세 AI 피드백과 개선 제안을 받고, 누적 기록으로 자신의 성장을 확인하세요.</p>
+        <h3 data-i18n="home-step3-title">피드백으로 성장</h3>
+        <p data-i18n="home-step3-desc">상세 AI 피드백과 개선 제안을 받고, 누적 기록으로 자신의 성장을 확인하세요.</p>
       </div>
     </div>
   </section>
@@ -391,40 +467,40 @@
   <!-- FEATURES -->
   <section class="features">
     <div class="section-header">
-      <div class="section-eyebrow">Core Features</div>
-      <h2>주요 기능</h2>
-      <p>스피치 코치가 제공하는 핵심 분석 기능들</p>
+      <div class="section-eyebrow" data-i18n="home-features-eyebrow">Core Features</div>
+      <h2 data-i18n="home-features-title">주요 기능</h2>
+      <p data-i18n="home-features-sub">스피치 코치가 제공하는 핵심 분석 기능들</p>
     </div>
     <div class="feat-grid">
       <div class="feat-card">
         <div class="feat-icon">🎤</div>
-        <h3>실시간 음성 인식</h3>
+        <h3 data-i18n="home-feat1-title">실시간 음성 인식</h3>
         <p>Web Speech API로 말하는 내용을 즉시 텍스트로 변환합니다. 한국어 최적화.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">⏱</div>
-        <h3>침묵 감지 분석</h3>
+        <h3 data-i18n="home-feat2-title">침묵 감지 분석</h3>
         <p>3초 이상의 침묵 구간을 자동 감지하고 전체 침묵 비율을 계산합니다.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">📊</div>
-        <h3>말하기 속도 측정</h3>
+        <h3 data-i18n="home-feat3-title">말하기 속도 측정</h3>
         <p>분당 단어 수(WPM)를 측정해 최적 속도 150~200 WPM과 비교합니다.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">💬</div>
-        <h3>언어 습관 분석</h3>
-        <p>습관적 추임새와 반복 표현을 감지해 구체적인 개선점을 제시합니다.</p>
+        <h3 data-i18n="home-feat4-title">언어 습관 분석</h3>
+        <p data-i18n="home-feat4-desc">습관적 추임새와 반복 표현을 감지해 구체적인 개선점을 제시합니다.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">🏆</div>
-        <h3>종합 점수 평가</h3>
+        <h3 data-i18n="home-feat5-title">종합 점수 평가</h3>
         <p>속도·침묵·언어습관 4가지 항목을 종합해 100점 만점으로 평가합니다.</p>
       </div>
       <div class="feat-card">
         <div class="feat-icon">📈</div>
-        <h3>연습 기록 관리</h3>
-        <p>모든 연습을 저장하고 통계 페이지에서 나의 성장 그래프를 확인하세요.</p>
+        <h3 data-i18n="home-feat6-title">연습 기록 관리</h3>
+        <p><span data-i18n="home-feat6-desc">모든 연습을 저장하고 통계 페이지에서 나의 성장 그래프를 확인하세요</span>.</p>
       </div>
     </div>
   </section>
@@ -432,19 +508,20 @@
   <!-- CTA BANNER -->
   <section class="cta-section">
     <div class="cta-inner">
-      <h2>지금 바로 시작하세요</h2>
-      <p>회원가입 없이도 연습을 시작할 수 있습니다.<br/>더 많은 기능은 로그인 후 이용 가능합니다.</p>
+      <h2 data-i18n="home-cta-title">지금 바로 시작하세요</h2>
+      <p><span data-i18n="home-cta-sub1">회원가입 없이도 연습을 시작할 수 있습니다.</span><br/><span data-i18n="home-cta-sub2">더 많은 기능은 로그인 후 이용 가능합니다.</span></p>
       <div class="cta-btns">
-        <a href="practice.html" class="btn btn-primary btn-lg">연습 시작하기</a>
-        <a href="login.html" class="btn btn-outline btn-lg guest-only">로그인</a>
+        <a href="practice.html" class="btn btn-primary btn-lg" data-i18n="home-cta-start">연습 시작하기</a>
+        <a href="login.html" class="btn btn-outline btn-lg guest-only" data-i18n="nav-login">로그인</a>
       </div>
     </div>
   </section>
 
   <footer>
-    <p>© 2026 SpeechCoach &nbsp;·&nbsp; AI 기반 발표 연습 플랫폼</p>
+    <p><span data-i18n="home-footer">© 2026 SpeechCoach \u00a0·\u00a0 AI 기반 발표 연습 플랫폼</span></p>
   </footer>
 
   <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
 </body>
 </html>

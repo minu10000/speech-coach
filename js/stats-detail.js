@@ -1,4 +1,25 @@
 // ===== stats-detail.js =====
+// 다국어 지원용 헬퍼 함수
+function t(key) {
+  if (window.i18n && typeof window.i18n.t === 'function') {
+    return window.i18n.t(key);
+  }
+  const fallbacks = {
+    'detail-stat-silence': '침묵 비율',
+    'detail-stat-wpm': '분당 단어 수',
+    'detail-stat-words': '단어',
+    'detail-stat-fillers': '습관어',
+    'detail-chart-title': '영역별 점수',
+    'detail-audio-title': '🔊 녹음 파일',
+    'detail-transcript-title': '📝 인식된 텍스트',
+    'detail-action-title': '📌 개선 제안',
+    'detail-category-silence': '침묵 관리',
+    'detail-category-speed': '말하기 속도',
+    'detail-category-filler': '언어 습관',
+    'detail-category-words': '발음/발화량'
+  };
+  return fallbacks[key] || key;
+}
 
 // IndexedDB 설정 (오디오 저장용)
 const DB_NAME = 'SpeechCoachDB';
@@ -127,7 +148,12 @@ function createRadarChart(ctx, scores, label) {
     radarChartInstance.destroy();
   }
 
-  const labels = ['침묵 관리', '말하기 속도', '언어 습관', '발음/발화량'];
+  const labels = [
+    t('detail-category-silence') || '침묵 관리',
+    t('detail-category-speed') || '말하기 속도',
+    t('detail-category-filler') || '언어 습관',
+    t('detail-category-words') || '발음/발화량'
+  ];
   const data = [scores.silence, scores.speed, scores.filler, scores.words];
   const bgColor = getScoreColor(scores.overall);
 
@@ -194,7 +220,12 @@ function createCompareChart(ctx, scores1, scores2) {
     radarChartInstance.destroy();
   }
 
-  const labels = ['침묵 관리', '말하기 속도', '언어 습관', '발음/발화량'];
+  const labels = [
+    t('detail-category-silence') || '침묵 관리',
+    t('detail-category-speed') || '말하기 속도',
+    t('detail-category-filler') || '언어 습관',
+    t('detail-category-words') || '발음/발화량'
+  ];
 
   radarChartInstance = new Chart(ctx, {
     type: 'radar',
@@ -566,5 +597,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof applyNavAuth === 'function') {
     applyNavAuth();
   }
+  renderDetail();
+});
+
+// 언어 변경 시 차트 재생성
+window.addEventListener('languageChanged', () => {
   renderDetail();
 });

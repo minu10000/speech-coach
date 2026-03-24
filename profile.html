@@ -255,6 +255,44 @@
     .empty-state .e-icon { font-size: 3rem; opacity: 0.4; display: block; margin-bottom: 0.8rem; }
     .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text-sub); margin-bottom: 0.4rem; }
     .empty-state p { font-size: 0.85rem; }
+
+    /* Language Switcher */
+    .lang-switcher { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; }
+    .lang-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem;
+      background: rgba(30, 30, 40, 0.85); backdrop-filter: blur(12px);
+      border: 1px solid rgba(123, 99, 248, 0.35); border-radius: 14px;
+      color: #fff; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: all 0.25s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .lang-btn:hover {
+      background: rgba(123, 99, 248, 0.25); border-color: rgba(123, 99, 248, 0.7);
+      box-shadow: 0 6px 25px rgba(123, 99, 248, 0.25); transform: translateY(-2px);
+    }
+    .lang-btn svg { width: 18px; height: 18px; transition: transform 0.25s ease; }
+    .lang-btn.active svg { transform: rotate(180deg); }
+    .lang-dropdown {
+      position: absolute; bottom: calc(100% + 0.75rem); right: 0; min-width: 160px;
+      background: rgba(20, 20, 28, 0.95); backdrop-filter: blur(16px);
+      border: 1px solid rgba(123, 99, 248, 0.4); border-radius: 14px; padding: 0.5rem;
+      opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .lang-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .lang-dropdown::before {
+      content: ''; position: absolute; bottom: -6px; right: 20px; width: 12px; height: 12px;
+      background: rgba(20, 20, 28, 0.95); border-right: 1px solid rgba(123, 99, 248, 0.4);
+      border-bottom: 1px solid rgba(123, 99, 248, 0.4); transform: rotate(45deg);
+    }
+    .lang-option {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.85rem;
+      border-radius: 10px; color: #e0e0e0; font-size: 0.87rem;
+      cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+    }
+    .lang-option:hover { background: rgba(123, 99, 248, 0.2); color: #fff; }
+    .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
+    .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
+    @media(max-width:768px){ .lang-switcher { bottom: 1rem; right: 1rem; } .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; } }
   </style>
 </head>
 <body>
@@ -264,16 +302,34 @@
   <nav class="navbar">
     <a href="index.html" class="logo">🎤 SpeechCoach</a>
     <ul class="nav-links">
-      <li><a href="practice.html">연습하기</a></li>
-      <li><a href="stats.html">내 기록</a></li>
-      <li class="guest-only"><a href="login.html">로그인</a></li>
+      <li><a href="practice.html" data-i18n="nav-practice">연습하기</a></li>
+      <li><a href="stats.html" data-i18n="nav-stats">내 기록</a></li>
+      <li class="guest-only"><a href="login.html" data-i18n="nav-login">로그인</a></li>
     </ul>
   </nav>
 
+  <div class="lang-switcher">
+    <button class="lang-btn" id="langBtn" aria-label="언어 선택">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.785 10.77 8.07 15.61 3 18.129" />
+      </svg>
+      <span id="currentLang">한국어</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <a href="#" class="lang-option active" data-lang="ko" data-label="한국어"><span class="lang-flag">🇰🇷</span><span>한국어</span></a>
+      <a href="#" class="lang-option" data-lang="en" data-label="English"><span class="lang-flag">🇺🇸</span><span>English</span></a>
+      <a href="#" class="lang-option" data-lang="zh" data-label="中文"><span class="lang-flag">🇨🇳</span><span>中文</span></a>
+      <a href="#" class="lang-option" data-lang="ja" data-label="日本語"><span class="lang-flag">🇯🇵</span><span>日本語</span></a>
+      <a href="#" class="lang-option" data-lang="es" data-label="Español"><span class="lang-flag">🇪🇸</span><span>Español</span></a>
+      <a href="#" class="lang-option" data-lang="fr" data-label="Français"><span class="lang-flag">🇫🇷</span><span>Français</span></a>
+      <a href="#" class="lang-option" data-lang="de" data-label="Deutsch"><span class="lang-flag">🇩🇪</span><span>Deutsch</span></a>
+    </div>
+  </div>
+
   <div class="profile-wrap">
     <div class="pg-header">
-      <h1>내 프로필</h1>
-      <p>프로필 정보와 연습 통계를 확인하세요</p>
+      <h1 data-i18n="profile-title">내 프로필</h1>
+      <p data-i18n="profile-sub">프로필 정보와 연습 통계를 확인하세요</p>
     </div>
 
     <!-- 프로필 카드 -->
@@ -292,9 +348,9 @@
             <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
           </button>
         </div>
-        <div class="profile-joined" id="profileJoined">가입일: --</div>
+        <div class="profile-joined" id="profileJoined" data-i18n="profile-joined">가입일: --</div>
         <div class="profile-bio-wrap">
-          <div class="profile-bio empty" id="profileBio">
+          <div class="profile-bio empty" id="profileBio" data-i18n="profile-bio-empty">
             아직 자기소개를 작성하지 않았습니다.
           </div>
           <button class="profile-bio-edit" id="editBioBtn" title="자기소개 수정">
@@ -305,36 +361,36 @@
     </div>
 
     <!-- 종합 통계 -->
-    <div class="section-title">📊 종합 통계</div>
+    <div class="section-title" data-i18n="profile-stats-title">📊 종합 통계</div>
     <div class="stats-overview" id="statsOverview">
       <div class="stat-overview-card">
         <span class="stat-ov-icon">📋</span>
         <div class="stat-ov-value" id="totalCount">0</div>
-        <div class="stat-ov-label">총 연습 횟수</div>
+        <div class="stat-ov-label" data-i18n="profile-stat-count">총 연습 횟수</div>
       </div>
       <div class="stat-overview-card">
         <span class="stat-ov-icon">⏱</span>
         <div class="stat-ov-value" id="totalTime">0분</div>
-        <div class="stat-ov-label">총 연습 시간</div>
+        <div class="stat-ov-label" data-i18n="profile-stat-time">총 연습 시간</div>
       </div>
       <div class="stat-overview-card">
         <span class="stat-ov-icon">🏆</span>
         <div class="stat-ov-value" id="avgScore">0</div>
-        <div class="stat-ov-label">평균 점수</div>
+        <div class="stat-ov-label" data-i18n="profile-stat-avg">평균 점수</div>
       </div>
       <div class="stat-overview-card">
         <span class="stat-ov-icon">📈</span>
         <div class="stat-ov-value" id="bestScore">0</div>
-        <div class="stat-ov-label">최고 점수</div>
+        <div class="stat-ov-label" data-i18n="profile-stat-best">최고 점수</div>
       </div>
     </div>
 
     <!-- 스킬 분석 -->
     <div class="skill-section">
-      <div class="section-title" style="margin-bottom:1rem;">🎯 스킬 분석</div>
+      <div class="section-title" style="margin-bottom:1rem;" data-i18n="profile-skill-title">🎯 스킬 분석</div>
       <div class="skill-item">
         <div class="skill-header">
-          <span class="skill-name">🤫 침묵 관리</span>
+          <span class="skill-name" data-i18n="profile-skill-silence">🤫 침묵 관리</span>
           <span class="skill-value" id="skillSilence">0점</span>
         </div>
         <div class="skill-bar">
@@ -343,7 +399,7 @@
       </div>
       <div class="skill-item">
         <div class="skill-header">
-          <span class="skill-name">⚡ 말하기 속도</span>
+          <span class="skill-name" data-i18n="profile-skill-speed">⚡ 말하기 속도</span>
           <span class="skill-value" id="skillSpeed">0점</span>
         </div>
         <div class="skill-bar">
@@ -352,7 +408,7 @@
       </div>
       <div class="skill-item">
         <div class="skill-header">
-          <span class="skill-name">💬 언어 습관</span>
+          <span class="skill-name" data-i18n="profile-skill-filler">💬 언어 습관</span>
           <span class="skill-value" id="skillFiller">0점</span>
         </div>
         <div class="skill-bar">
@@ -361,7 +417,7 @@
       </div>
       <div class="skill-item">
         <div class="skill-header">
-          <span class="skill-name">🗣 발음/발화량</span>
+          <span class="skill-name" data-i18n="profile-skill-words">🗣 발음/발화량</span>
           <span class="skill-value" id="skillWords">0점</span>
         </div>
         <div class="skill-bar">
@@ -373,7 +429,7 @@
     <div class="detail-section">
       <!-- 레이더 차트 -->
       <div class="chart-box">
-        <div class="section-title" style="margin-bottom:1rem;">영역별 능력 분석</div>
+        <div class="section-title" style="margin-bottom:1rem;" data-i18n="profile-chart-title">영역별 능력 분석</div>
         <div class="chart-container">
           <canvas id="radarChart"></canvas>
         </div>
@@ -381,7 +437,7 @@
 
       <!-- 최근 기록 -->
       <div class="recent-box">
-        <div class="section-title" style="margin-bottom:1rem;">🕐 최근 기록</div>
+        <div class="section-title" style="margin-bottom:1rem;" data-i18n="profile-recent-title">🕐 최근 기록</div>
         <div id="recentRecords">
           <div class="empty-state">
             <span class="e-icon">📝</span>
@@ -394,13 +450,13 @@
 
     <!-- 뱃지 -->
     <div class="badge-section">
-      <div class="section-title" style="margin-bottom:1rem;">🏅 획득 뱃지</div>
+      <div class="section-title" style="margin-bottom:1rem;" data-i18n="profile-badge-title">🏅 획득 뱃지</div>
       <div class="badge-grid" id="badgeGrid"></div>
     </div>
 
     <div style="text-align:center;margin-top:2rem;">
-      <a href="stats.html" class="btn btn-outline">전체 기록 보기</a>
-      <a href="practice.html" class="btn btn-primary">연습하기</a>
+      <a href="stats.html" class="btn btn-outline" data-i18n="profile-btn-stats">전체 기록 보기</a>
+      <a href="practice.html" class="btn btn-primary" data-i18n="profile-btn-practice">연습하기</a>
     </div>
   </div>
 
@@ -410,11 +466,11 @@
       <button class="modal-close" onclick="closeNameModal()">
         <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
-      <div class="modal-title">닉네임 변경</div>
-      <input type="text" class="modal-input" id="newNameInput" placeholder="새 닉네임을 입력하세요" maxlength="20" />
+      <div class="modal-title" data-i18n="profile-modal-name-title">닉네임 변경</div>
+      <input type="text" class="modal-input" id="newNameInput" data-i18n-placeholder="profile-modal-name-ph" placeholder="새 닉네임을 입력하세요" maxlength="20" />
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeNameModal()">취소</button>
-        <button class="btn btn-primary" onclick="saveNewName()">저장</button>
+        <button class="btn btn-ghost" onclick="closeNameModal()" data-i18n="profile-modal-cancel">취소</button>
+        <button class="btn btn-primary" onclick="saveNewName()" data-i18n="profile-modal-save">저장</button>
       </div>
     </div>
   </div>
@@ -425,16 +481,17 @@
       <button class="modal-close" onclick="closeBioModal()">
         <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
-      <div class="modal-title">자기소개 수정</div>
-      <textarea class="modal-input" id="newBioInput" placeholder="자기소개를 입력하세요" maxlength="200" rows="4" style="resize:none;"></textarea>
+      <div class="modal-title" data-i18n="profile-modal-bio-title">자기소개 수정</div>
+      <textarea class="modal-input" id="newBioInput" data-i18n-placeholder="profile-modal-bio-ph" placeholder="자기소개를 입력하세요" maxlength="200" rows="4" style="resize:none;"></textarea>
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeBioModal()">취소</button>
-        <button class="btn btn-primary" onclick="saveNewBio()">저장</button>
+        <button class="btn btn-ghost" onclick="closeBioModal()" data-i18n="profile-modal-cancel">취소</button>
+        <button class="btn btn-primary" onclick="saveNewBio()" data-i18n="profile-modal-save">저장</button>
       </div>
     </div>
   </div>
 
   <script src="js/auth.js"></script>
   <script src="js/profile.js"></script>
+  <script src="js/i18n.js"></script>
 </body>
 </html>

@@ -1,4 +1,19 @@
 // ===== feedback.js =====
+// 다국어 지원용 헬퍼 함수
+function t(key) {
+  if (window.i18n && typeof window.i18n.t === 'function') {
+    return window.i18n.t(key);
+  }
+  // 기본 한국어 번역 (폴백)
+  const fallbacks = {
+    'feedback-category-silence': '침묵 관리',
+    'feedback-category-speed': '말하기 속도',
+    'feedback-category-filler': '언어 습관',
+    'feedback-category-words': '발음/발화량',
+    'feedback-action-title': '📌 추천 연습 방법'
+  };
+  return fallbacks[key] || key;
+}
 
 let radarChartInstance = null;
 
@@ -62,7 +77,12 @@ function createRadarChart(ctx, scores) {
     radarChartInstance.destroy();
   }
 
-  const labels = ['침묵 관리', '말하기 속도', '언어 습관', '발음/발화량'];
+  const labels = [
+    t('feedback-category-silence') || '침묵 관리',
+    t('feedback-category-speed') || '말하기 속도',
+    t('feedback-category-filler') || '언어 습관',
+    t('feedback-category-words') || '발음/발화량'
+  ];
   const data = [scores.silence, scores.speed, scores.filler, scores.words];
   const bgColor = getScoreColor(scores.overall);
 
@@ -177,6 +197,9 @@ function renderFeedback() {
     `;
     return;
   }
+
+  // 언어 변경 시 재생성을 위해 window 에 저장
+  window.lastFeedbackRecord = record;
 
   const grade = getGradeInfo(record.score);
 
@@ -380,3 +403,11 @@ function renderFeedback() {
 }
 
 renderFeedback();
+
+// 언어 변경 시 차트 재생성
+window.addEventListener('languageChanged', () => {
+  const record = window.lastFeedbackRecord;
+  if (record) {
+    renderFeedback();
+  }
+});

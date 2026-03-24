@@ -1,4 +1,17 @@
 // ===== profile.js =====
+// 다국어 지원용 헬퍼 함수
+function t(key) {
+  if (window.i18n && typeof window.i18n.t === 'function') {
+    return window.i18n.t(key);
+  }
+  const fallbacks = {
+    'profile-category-silence': '침묵 관리',
+    'profile-category-speed': '말하기 속도',
+    'profile-category-filler': '언어 습관',
+    'profile-category-words': '발음/발화량'
+  };
+  return fallbacks[key] || key;
+}
 
 let radarChartInstance = null;
 
@@ -328,17 +341,22 @@ function loadStats() {
 function createRadarChart(data) {
   const ctx = document.getElementById('radarChart');
   if (!ctx) return;
-  
+
   if (radarChartInstance) {
     radarChartInstance.destroy();
   }
-  
+
   const hasData = data.some(v => v > 0);
-  
+
   radarChartInstance = new Chart(ctx, {
     type: 'radar',
     data: {
-      labels: ['침묵 관리', '말하기 속도', '언어 습관', '발음/발화량'],
+      labels: [
+        t('profile-category-silence') || '침묵 관리',
+        t('profile-category-speed') || '말하기 속도',
+        t('profile-category-filler') || '언어 습관',
+        t('profile-category-words') || '발음/발화량'
+      ],
       datasets: [{
         label: '내 실력',
         data: hasData ? data : [20, 20, 20, 20],
@@ -445,9 +463,14 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof applyNavAuth === 'function') {
     applyNavAuth();
   }
-  
+
   loadProfileImage();
   loadProfileInfo();
   loadStats();
   loadBadges();
+});
+
+// 언어 변경 시 차트 재생성
+window.addEventListener('languageChanged', () => {
+  loadStats();
 });

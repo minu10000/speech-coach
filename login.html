@@ -115,9 +115,130 @@
     }
     .auth-foot a { font-weight: 600; }
 
+    .home-btn {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.9rem;
+      background: rgba(30, 30, 40, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .home-btn:hover {
+      background: rgba(123, 99, 248, 0.2);
+      border-color: rgba(123, 99, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .lang-switcher {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+    }
+    .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: rgba(30, 30, 40, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(123, 99, 248, 0.35);
+      border-radius: 14px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .lang-btn:hover {
+      background: rgba(123, 99, 248, 0.25);
+      border-color: rgba(123, 99, 248, 0.7);
+      box-shadow: 0 6px 25px rgba(123, 99, 248, 0.25);
+      transform: translateY(-2px);
+    }
+    .lang-btn svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.25s ease;
+    }
+    .lang-btn.active svg {
+      transform: rotate(180deg);
+    }
+    .lang-dropdown {
+      position: absolute;
+      bottom: calc(100% + 0.75rem);
+      right: 0;
+      min-width: 180px;
+      background: rgba(20, 20, 28, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(123, 99, 248, 0.4);
+      border-radius: 14px;
+      padding: 0.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .lang-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .lang-dropdown::before {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      right: 20px;
+      width: 12px;
+      height: 12px;
+      background: rgba(20, 20, 28, 0.95);
+      border-right: 1px solid rgba(123, 99, 248, 0.4);
+      border-bottom: 1px solid rgba(123, 99, 248, 0.4);
+      transform: rotate(45deg);
+    }
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 10px;
+      color: #e0e0e0;
+      font-size: 0.87rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .lang-option:hover {
+      background: rgba(123, 99, 248, 0.2);
+      color: #fff;
+    }
+    .lang-option.active {
+      background: rgba(123, 99, 248, 0.3);
+      color: #a78bfa;
+    }
+    .lang-flag {
+      font-size: 1.2rem;
+      width: 28px;
+      text-align: center;
+    }
     @media(max-width:780px){
       .auth-wrap { grid-template-columns: 1fr; }
       .auth-left { display: none; }
+      .lang-switcher { bottom: 1rem; right: 1rem; }
+      .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; }
     }
   </style>
 </head>
@@ -125,17 +246,58 @@
   <div class="page-glow page-glow-1"></div>
   <div class="page-glow page-glow-2"></div>
 
+  <a href="index.html" class="home-btn" title="홈으로">🏠 홈</a>
+
+  <div class="lang-switcher">
+    <button class="lang-btn" id="langBtn" aria-label="언어 선택">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.785 10.77 8.07 15.61 3 18.129" />
+      </svg>
+      <span id="currentLang">한국어</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <a href="#" class="lang-option active" data-lang="ko" data-label="한국어">
+        <span class="lang-flag">🇰🇷</span>
+        <span>한국어</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="en" data-label="English">
+        <span class="lang-flag">🇺🇸</span>
+        <span>English</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="zh" data-label="中文">
+        <span class="lang-flag">🇨🇳</span>
+        <span>中文</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="ja" data-label="日本語">
+        <span class="lang-flag">🇯🇵</span>
+        <span>日本語</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="es" data-label="Español">
+        <span class="lang-flag">🇪🇸</span>
+        <span>Español</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="fr" data-label="Français">
+        <span class="lang-flag">🇫🇷</span>
+        <span>Français</span>
+      </a>
+      <a href="#" class="lang-option" data-lang="de" data-label="Deutsch">
+        <span class="lang-flag">🇩🇪</span>
+        <span>Deutsch</span>
+      </a>
+    </div>
+  </div>
+
   <div class="auth-wrap">
     <!-- LEFT -->
     <div class="auth-left">
       <div class="al-content">
         <div class="al-logo">🎤 SpeechCoach</div>
-        <div class="al-headline">스피치 실력,<br/><em>데이터로</em> 키우세요</div>
-        <p class="al-sub">AI가 당신의 목소리를 분석하고<br/>정확한 피드백으로 성장을 돕습니다.</p>
+        <div class="al-headline"><span data-i18n="login-left-headline">스피치 실력,</span><br/><em data-i18n="login-left-em">데이터로</em> <span data-i18n="login-left-sub2">키우세요</span></div>
+        <p class="al-sub" data-i18n="login-left-desc">AI 가 당신의 목소리를 분석하고<br/>정확한 피드백으로 성장을 돕습니다.</p>
         <div class="al-chips">
-          <div class="al-chip"><div class="al-chip-icon">📊</div>실시간 음성 분석 및 WPM 측정</div>
-          <div class="al-chip"><div class="al-chip-icon">🤫</div>침묵 감지 & 습관어 분석</div>
-          <div class="al-chip"><div class="al-chip-icon">🏆</div>100점 종합 점수 & AI 피드백</div>
+          <div class="al-chip" data-i18n="login-chip1"><div class="al-chip-icon">📊</div>실시간 음성 분석 및 WPM 측정</div>
+          <div class="al-chip" data-i18n="login-chip2"><div class="al-chip-icon">🤫</div>침묵 감지 & 습관어 분석</div>
+          <div class="al-chip" data-i18n="login-chip3"><div class="al-chip-icon">🏆</div>100 점 종합 점수 & AI 피드백</div>
         </div>
       </div>
     </div>
@@ -143,41 +305,74 @@
     <!-- RIGHT -->
     <div class="auth-right">
       <div class="auth-box">
-        <h2>다시 만나서 반가워요</h2>
-        <p class="auth-sub">계정에 로그인하세요</p>
+        <h2 data-i18n="login-left-title">다시 만나서 반가워요</h2>
+        <p class="auth-sub" data-i18n="login-left-sub">계정에 로그인하세요</p>
 
         <div class="error-msg" id="errorMsg"></div>
         <div class="success-msg" id="successMsg"></div>
 
         <form id="loginForm">
           <div class="form-group">
-            <label for="username">아이디</label>
-            <input type="text" id="username" placeholder="아이디를 입력하세요" autocomplete="username" />
+            <label for="username" data-i18n="login-username">아이디</label>
+            <input type="text" id="username" data-i18n-placeholder="login-username-ph" placeholder="아이디를 입력하세요" autocomplete="username" />
           </div>
           <div class="form-group">
-            <label for="password">비밀번호</label>
-            <input type="password" id="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
+            <label for="password" data-i18n="login-password">비밀번호</label>
+            <input type="password" id="password" data-i18n-placeholder="login-password-ph" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
           </div>
           <div class="form-row-between">
             <label class="checkbox-group">
-              <input type="checkbox" id="rememberMe" /> 로그인 유지
+              <input type="checkbox" id="rememberMe" /> <span data-i18n="login-remember">로그인 유지</span>
             </label>
             <div class="form-links">
-              <a href="#">아이디 찾기</a>
-              <a href="#">비밀번호 찾기</a>
+              <a href="#" data-i18n="login-find-id">아이디 찾기</a>
+              <a href="#" data-i18n="login-find-pw">비밀번호 찾기</a>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-full btn-lg">로그인</button>
+          <button type="submit" class="btn btn-primary btn-full btn-lg" data-i18n="login-submit">로그인</button>
         </form>
 
-        <div class="divider-or">또는</div>
-        <div class="auth-foot">계정이 없으신가요? <a href="signup.html">회원가입</a></div>
+        <div class="divider-or" data-i18n="login-or">또는</div>
+        <div class="auth-foot" data-i18n="login-no-account">계정이 없으신가요? <a href="signup.html" data-i18n="login-signup">회원가입</a></div>
       </div>
     </div>
   </div>
 
   <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
+    // Language Switcher
+    const langBtn = document.getElementById('langBtn');
+    const langDropdown = document.getElementById('langDropdown');
+    const currentLang = document.getElementById('currentLang');
+    const langOptions = document.querySelectorAll('.lang-option');
+
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langBtn.classList.toggle('active');
+      langDropdown.classList.toggle('show');
+    });
+
+    langOptions.forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const label = option.getAttribute('data-label');
+        currentLang.textContent = label;
+        langOptions.forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        langBtn.classList.remove('active');
+        langDropdown.classList.remove('show');
+        // TODO: 실제 언어 변경 로직 구현
+        console.log('Language changed to:', label);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      langBtn.classList.remove('active');
+      langDropdown.classList.remove('show');
+    });
+
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
