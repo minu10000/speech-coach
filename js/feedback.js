@@ -1,4 +1,4 @@
-// ===== feedback.js =====
+﻿// ===== feedback.js =====
 // 다국어 지원용 헬퍼 함수
 function t(key) {
   if (window.i18n && typeof window.i18n.t === 'function') {
@@ -201,20 +201,25 @@ function renderFeedback() {
   // 언어 변경 시 재생성을 위해 window 에 저장
   window.lastFeedbackRecord = record;
 
+  // 음성이 인식되지 않은 경우 모든 점수 0 점 처리
+  const noSpeech = record.wordCount === 0 || record.transcript.trim() === '';
+  
   const grade = getGradeInfo(record.score);
 
-  const silenceScore = getCategoryScore(record.silenceRate, 'silence');
-  const speedScore   = getCategoryScore(record.wpm, 'speed');
-  const fillerScore  = getCategoryScore(record.fillerCount, 'filler');
-  const wordsScore   = getCategoryScore(record.wordCount, 'words');
+  const silenceScore = noSpeech ? 0 : getCategoryScore(record.silenceRate, 'silence');
+  const speedScore   = noSpeech ? 0 : getCategoryScore(record.wpm, 'speed');
+  const fillerScore  = noSpeech ? 0 : getCategoryScore(record.fillerCount, 'filler');
+  const wordsScore   = noSpeech ? 0 : getCategoryScore(record.wordCount, 'words');
 
   function silenceComment(rate) {
+    if (noSpeech) return '음성이 인식되지 않아 침묵을 측정할 수 없습니다.';
     if (rate <= 20) return '침묵 비율이 매우 낮아 발화가 자연스럽게 이어졌습니다. 훌륭합니다!';
     if (rate <= 40) return '침묵 구간이 다소 있습니다. 다음 문장을 미리 준비하는 연습을 해보세요.';
     return '침묵 비율이 높습니다. 핵심 내용을 미리 정리하고 연습하면 크게 개선됩니다.';
   }
 
   function speedComment(wpm) {
+    if (noSpeech) return '음성이 인식되지 않아 말하기 속도를 측정할 수 없습니다.';
     if (wpm >= 150 && wpm <= 200) return '최적의 말하기 속도입니다. 청중이 내용을 충분히 이해할 수 있는 속도입니다.';
     if (wpm < 100) return '말하기 속도가 너무 느립니다. 조금 더 자신감 있게 빠르게 말해보세요.';
     if (wpm > 250) return '말하기 속도가 너무 빠릅니다. 천천히, 명확하게 말하는 연습이 필요합니다.';
@@ -222,6 +227,7 @@ function renderFeedback() {
   }
 
   function fillerComment(count) {
+    if (noSpeech) return '음성이 인식되지 않아 언어 습관을 측정할 수 없습니다.';
     if (count === 0) return '습관적 추임새가 전혀 없습니다. 매우 깔끔한 발화입니다!';
     if (count <= 2) return '추임새가 거의 없어 깔끔한 편입니다. 조금 더 신경 써보세요.';
     if (count <= 5) return `추임새가 ${count}회 감지되었습니다. 의식적으로 줄이는 연습을 하세요.`;
@@ -229,6 +235,7 @@ function renderFeedback() {
   }
 
   function wordsComment(count, wpm) {
+    if (noSpeech) return '음성이 인식되지 않았습니다. 마이크 설정을 확인하고 명확하게 말해주세요.';
     if (count >= 100) return `총 ${count}단어로 충분한 내용을 전달했습니다. 발화량이 적절합니다.`;
     if (count >= 50) return `총 ${count}단어를 발화했습니다. 조금 더 많은 내용을 말하는 연습을 해보세요.`;
     return `발화량이 적습니다 (${count}단어). 더 많은 내용을 준비하고 연습해보세요.`;
@@ -236,39 +243,54 @@ function renderFeedback() {
 
   const actionItems = [];
 
-  if (record.silenceRate > 20) {
+  if (noSpeech) {
     actionItems.push({
-      title: '침묵 줄이기 연습',
-      desc: '발화 전에 핵심 키워드를 메모해두고, 자연스럽게 연결하는 연습을 5 분씩 매일 하세요.'
-    });
-  }
-  if (record.wpm < 130 || record.wpm > 220) {
-    actionItems.push({
-      title: '속도 조절 연습',
-      desc: '150~200 WPM 목표로 타이머를 활용해 동일한 스크립트를 반복 연습하세요.'
-    });
-  }
-  if (record.fillerCount > 2) {
-    actionItems.push({
-      title: '추임새 제거 연습',
-      desc: '"음", "어" 등이 나오려 할 때 잠깐 침묵하는 습관을 들이세요. 녹음 후 스스로 체크하세요.'
-    });
-  }
-  if (record.wordCount < 50) {
-    actionItems.push({
-      title: '발화량 늘리기',
-      desc: '주제를 하나 정하고 3 분간 쉬지 않고 말하는 연습을 매일 반복하세요.'
-    });
-  }
-  if (actionItems.length === 0) {
-    actionItems.push({
-      title: '현재 수준 유지',
-      desc: '훌륭한 스피치 실력입니다! 더 어려운 주제로 도전하며 수준을 유지하세요.'
+      title: '마이크 설정 확인',
+      desc: '마이크가 제대로 연결되었는지 확인하고, 브라우저에서 마이크 권한을 허용해주세요.'
     });
     actionItems.push({
-      title: '다양한 주제 연습',
-      desc: '익숙한 주제 외에도 처음 접하는 주제로 즉흥 스피치 연습을 해보세요.'
+      title: '명확한 발음으로 말하기',
+      desc: '조금 더 크고 명확한 소리로 말해주세요. 너무 작게 말하면 인식이 어렵습니다.'
     });
+    actionItems.push({
+      title: '다시 연습하기',
+      desc: '준비가 되면 다시 연습하기를 눌러 녹음을 시작해주세요.'
+    });
+  } else {
+    if (record.silenceRate > 20) {
+      actionItems.push({
+        title: '침묵 줄이기 연습',
+        desc: '발화 전에 핵심 키워드를 메모해두고, 자연스럽게 연결하는 연습을 5 분씩 매일 하세요.'
+      });
+    }
+    if (record.wpm < 130 || record.wpm > 220) {
+      actionItems.push({
+        title: '속도 조절 연습',
+        desc: '150~200 WPM 목표로 타이머를 활용해 동일한 스크립트를 반복 연습하세요.'
+      });
+    }
+    if (record.fillerCount > 2) {
+      actionItems.push({
+        title: '추임새 제거 연습',
+        desc: '"음", "어" 등이 나오려 할 때 잠깐 침묵하는 습관을 들이세요. 녹음 후 스스로 체크하세요.'
+      });
+    }
+    if (record.wordCount < 50) {
+      actionItems.push({
+        title: '발화량 늘리기',
+        desc: '주제를 하나 정하고 3 분간 쉬지 않고 말하는 연습을 매일 반복하세요.'
+      });
+    }
+    if (actionItems.length === 0) {
+      actionItems.push({
+        title: '현재 수준 유지',
+        desc: '훌륭한 스피치 실력입니다! 더 어려운 주제로 도전하며 수준을 유지하세요.'
+      });
+      actionItems.push({
+        title: '다양한 주제 연습',
+        desc: '익숙한 주제 외에도 처음 접하는 주제로 즉흥 스피치 연습을 해보세요.'
+      });
+    }
   }
 
   container.innerHTML = `
@@ -411,3 +433,4 @@ window.addEventListener('languageChanged', () => {
     renderFeedback();
   }
 });
+

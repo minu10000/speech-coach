@@ -112,6 +112,7 @@
     .auth-foot {
       text-align: center; margin-top: 1.2rem;
       font-size: 0.84rem; color: var(--text-dim);
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
     }
     .auth-foot a { font-weight: 600; }
 
@@ -246,7 +247,7 @@
   <div class="page-glow page-glow-1"></div>
   <div class="page-glow page-glow-2"></div>
 
-  <a href="index.html" class="home-btn" title="홈으로">🏠 홈</a>
+  <a href="index.html" class="home-btn" title="홈으로" data-i18n="home-btn">🏠 홈</a>
 
   <div class="lang-switcher">
     <button class="lang-btn" id="langBtn" aria-label="언어 선택">
@@ -333,46 +334,17 @@
         </form>
 
         <div class="divider-or" data-i18n="login-or">또는</div>
-        <div class="auth-foot" data-i18n="login-no-account">계정이 없으신가요? <a href="signup.html" data-i18n="login-signup">회원가입</a></div>
+        <div class="auth-foot">
+          <span data-i18n="login-no-account">계정이 없으신가요?</span>
+          <a href="signup.html" data-i18n="login-signup">회원가입</a>
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="js/auth.js"></script>
   <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
   <script>
-    // Language Switcher
-    const langBtn = document.getElementById('langBtn');
-    const langDropdown = document.getElementById('langDropdown');
-    const currentLang = document.getElementById('currentLang');
-    const langOptions = document.querySelectorAll('.lang-option');
-
-    langBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      langBtn.classList.toggle('active');
-      langDropdown.classList.toggle('show');
-    });
-
-    langOptions.forEach(option => {
-      option.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const label = option.getAttribute('data-label');
-        currentLang.textContent = label;
-        langOptions.forEach(opt => opt.classList.remove('active'));
-        option.classList.add('active');
-        langBtn.classList.remove('active');
-        langDropdown.classList.remove('show');
-        // TODO: 실제 언어 변경 로직 구현
-        console.log('Language changed to:', label);
-      });
-    });
-
-    document.addEventListener('click', () => {
-      langBtn.classList.remove('active');
-      langDropdown.classList.remove('show');
-    });
-
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();

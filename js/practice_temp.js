@@ -112,9 +112,6 @@ let isPlaying = false;
 let audioProgressInterval = null;
 let currentRecordId = null;
 
-// 오디오 청크 누적 (일시정지/재개 시에도 유지)
-let allAudioChunks = [];
-
 // 음성 인식 언어 (기본값: 한국어)
 let speechLanguage = localStorage.getItem('sc_speech_lang') || 'ko-KR';
 
@@ -163,160 +160,73 @@ function setStatus(type, text) {
 }
 
 function toggleRecording() {
-  if (isRecording) {
-    // 녹음 중이면 중지 (일시정지)
-    pauseRecording();
-  } else {
-    // 녹음이 꺼져있으면 시작 또는 재개
-    resumeRecording();
-  }
-}
-
-// 녹음 일시정지
-function pauseRecording() {
-  if (!isRecording) return;
-  
-  isRecording = false;
-  clearInterval(timerInterval);
-
-  // 음성 인식 일시정지 (transcript 유지)
-  if (recognition) {
-    recognition.onend = null;
-    recognition.stop();
-    recognition = null;
-  }
-
-  // 오디오 녹음 중지 (청크는 유지됨)
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    mediaRecorder.stop();
-  }
-
   const btn = document.getElementById('recordBtn');
-  btn.textContent = '▶️ 녹음 계속하기';
-  btn.classList.remove('btn-danger');
-  btn.classList.add('btn-primary');
-
-  setStatus('complete', '일시정지');
-  updateStats();
-  showFeedback();
-
-  document.getElementById('saveSection').style.display = 'flex';
   
-  // transcript 명시적으로 표시 (항상 보이게)
-  renderTranscript();
+  if (isRecording) {
+    // 녹음 중이면 중지
+    stopRecording();
+  } else {
+    // 녹음이 꺼져있으면 시작
+    startRecording();
+  }
 }
 
-// 녹음 재개
-function resumeRecording() {
-  // 브라우저 지원 확인
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    showToast({
-      type: 'error',
-      title: '음성 인식 지원 안 함',
-      message: '이 브라우저는 음성 인식을 지원하지 않습니다. Chrome 브라우저를 사용해 주세요.',
-      duration: 5000,
-      icon: '❌'
-    });
+async function startRecording() {
+  if (isRecording) return; // 이미 녹음 중인 경우 중복 시작 방지
+  
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('이 브라우저는 음성 인식을 지원하지 않습니다.\nChrome 브라우저를 사용해 주세요.');
     return;
   }
 
-  try {
-    isRecording = true;
-    startTime = Date.now() - (totalSeconds * 1000); // 이전 시간 유지
-    // transcript 는 유지 (이어서 녹음)
-    speakSeconds = 0;
-    silenceSeconds = 0;
-    silenceCount = 0;
-    isSilent = false;
+  isRecording = true;
+  startTime = Date.now();
+  finalTranscript = '';
+  interimTranscript = '';
+  speakSeconds = 0;
+  silenceSeconds = 0;
+  silenceCount = 0;
+  isSilent = false;
 
-    // 이전 오디오 초기화
-    if (audioElement) {
-      audioElement.pause();
-      audioElement = null;
-    }
-    if (audioUrl) {
-      URL.revokeObjectURL(audioUrl);
-      audioUrl = null;
-    }
-    audioBlob = null;
-    document.getElementById('audioPlayerWrap').classList.remove('show');
-
-    const btn = document.getElementById('recordBtn');
-    btn.textContent = '⏹ 녹음 중지';
-    btn.classList.remove('btn-primary');
-    btn.classList.add('btn-danger');
-    document.getElementById('saveSection').style.display = 'none';
-    
-    // 기존 transcript 표시 (이어서 녹음) - 중요!
-    const el = document.getElementById('transcriptText');
-    if (finalTranscript) {
-      el.innerHTML = finalTranscript + '<span class="interim">...</span>';
-    } else {
-      el.innerHTML = '<span class="interim">듣고 있습니다...</span>';
-    }
-
-    setStatus('recording', '녹음 중');
-
-    timerInterval = setInterval(updateTimerDisplay, 1000);
-
-    startSpeechRecognition();
-    startSilenceDetection();
-
-    // 오디오 녹음 시작
-    startAudioRecording().catch(err => {
-      console.error('오디오 녹음 오류:', err);
-      showToast({
-        type: 'error',
-        title: '마이크 권한 필요',
-        message: '마이크 사용을 허용해주세요. 브라우저 설정에서 권한을 확인하세요.',
-        duration: 6000,
-        icon: '🎤'
-      });
-    });
-  } catch (error) {
-    console.error('녹음 시작 오류:', error);
-    isRecording = false;
-    showToast({
-      type: 'error',
-      title: '녹음 시작 실패',
-      message: '마이크 권한을 확인하고 페이지를 새로고침 해주세요.',
-      duration: 5000,
-      icon: '❌'
-    });
-    const btn = document.getElementById('recordBtn');
-    btn.textContent = '🎤 녹음 시작';
-    btn.classList.remove('btn-danger');
-    btn.classList.add('btn-primary');
+  // 이전 오디오 초기화
+  if (audioElement) {
+    audioElement.pause();
+    audioElement = null;
   }
+  if (audioUrl) {
+    URL.revokeObjectURL(audioUrl);
+    audioUrl = null;
+  }
+  audioBlob = null;
+  document.getElementById('audioPlayerWrap').classList.remove('show');
+
+  const btn = document.getElementById('recordBtn');
+  btn.textContent = '⏹ 녹음 중지';
+  btn.classList.remove('btn-primary');
+  btn.classList.add('btn-danger');
+  document.getElementById('saveSection').style.display = 'none';
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('transcriptText').innerHTML = '<span class="interim">듣고 있습니다...</span>';
+
+  setStatus('recording', '녹음 중');
+
+  timerInterval = setInterval(updateTimerDisplay, 1000);
+
+  startSpeechRecognition();
+  startSilenceDetection();
+  
+  // 오디오 녹음 시작
+  startAudioRecording();
 }
 
 function startSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    console.error('SpeechRecognition API not supported');
-    showToast({
-      type: 'error',
-      title: '음성 인식 불가',
-      message: '이 브라우저는 음성 인식을 지원하지 않습니다. Chrome 브라우저를 사용해주세요.',
-      duration: 5000
-    });
-    return;
-  }
-
   recognition = new SpeechRecognition();
-
-  // 사용자가 선택한 언어 사용 (강제 적용)
-  const selectedLang = speechLanguage || 'ko-KR';
-  recognition.lang = selectedLang;
+  
+  // 사용자가 선택한 언어 사용
+  recognition.lang = speechLanguage;
   recognition.continuous = true;
   recognition.interimResults = true;
-
-  console.log('=== Speech Recognition Started ===');
-  console.log('Language:', selectedLang);
-  console.log('speechLanguage variable:', speechLanguage);
-  console.log('localStorage:', localStorage.getItem('sc_speech_lang'));
 
   recognition.onresult = function (event) {
     interimTranscript = '';
@@ -338,17 +248,9 @@ function startSpeechRecognition() {
     console.warn('음성 인식 오류:', e.error);
   };
 
-  // 음성 인식 종료 시에도 transcript 유지
   recognition.onend = function () {
-    console.log('Speech recognition ended. Final transcript:', finalTranscript);
-    // transcript 는 그대로 유지
     if (isRecording) {
-      // 녹음 중이면 자동으로 재시작
-      try {
-        recognition.start();
-      } catch (e) {
-        console.warn('음성 인식 재시작 실패:', e);
-      }
+      recognition.start();
     }
   };
 
@@ -401,28 +303,22 @@ function resetSilenceTimer() {
 // 오디오 녹음 시작
 async function startAudioRecording() {
   try {
-    // 마이크 권한 확인
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('이 브라우저는 마이크를 지원하지 않습니다.');
-    }
-
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(stream);
+    const chunks = [];
 
     mediaRecorder.ondataavailable = (e) => {
-      // 전역 청크 배열에 누적 (일시정지/재개 시에도 유지)
-      allAudioChunks.push(e.data);
+      chunks.push(e.data);
     };
 
     mediaRecorder.onstop = () => {
-      // 모든 청크를 하나로 합침
-      const audioBlob = new Blob(allAudioChunks, { type: 'audio/webm' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-
+      audioBlob = new Blob(chunks, { type: 'audio/webm' });
+      audioUrl = URL.createObjectURL(audioBlob);
+      
       // 오디오 플레이어 표시
       const playerWrap = document.getElementById('audioPlayerWrap');
       playerWrap.classList.add('show');
-
+      
       // 오디오 요소 생성
       audioElement = new Audio(audioUrl);
       audioElement.addEventListener('ended', () => {
@@ -432,7 +328,7 @@ async function startAudioRecording() {
         document.getElementById('audioProgressBar').style.width = '0%';
         document.getElementById('audioTime').textContent = `0:00 / ${formatTime(Math.floor(audioElement.duration))}`;
       });
-
+      
       document.getElementById('audioTime').textContent = `0:00 / ${formatTime(Math.floor(audioElement.duration))}`;
     };
 
@@ -466,17 +362,14 @@ function stopRecording() {
   isRecording = false;
   clearInterval(timerInterval);
 
-  // 음성 인식 완전히 중지
   if (recognition) {
     recognition.onend = null;
     recognition.stop();
     recognition = null;
   }
 
-  // 오디오 녹음 중지 (최종)
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    mediaRecorder.stop();
-  }
+  // 오디오 녹음 중지
+  stopAudioRecording();
 
   totalSeconds = Math.floor((Date.now() - startTime) / 1000);
   speakSeconds = totalSeconds - silenceSeconds;
@@ -492,11 +385,6 @@ function stopRecording() {
   showFeedback();
 
   document.getElementById('saveSection').style.display = 'flex';
-  
-  // transcript 명시적으로 표시 (항상 보이게)
-  renderTranscript();
-  
-  // 오디오 청크는 유지 (saveResult 에서 사용)
 }
 
 function showFeedback() {
@@ -544,10 +432,10 @@ function showFeedback() {
     items.push({ icon: '✅', text: `총 ${words.length}단어 발화 - 충분한 내용을 말했습니다.` });
   }
 
-  // 분석 결과 표시 (결과 저장 버튼과 함께)
-  const saveSection = document.getElementById('saveSection');
-  if (saveSection) {
-    saveSection.style.display = 'flex';
+  // 간단한 분석 결과만 표시하고 상세 피드백은 AI 피드백 페이지로 안내
+  const aiFeedbackPrompt = document.getElementById('aiFeedbackPrompt');
+  if (aiFeedbackPrompt) {
+    aiFeedbackPrompt.style.display = 'block';
   }
 }
 
@@ -563,6 +451,30 @@ async function saveResult() {
     const matches = finalTranscript.match(regex);
     if (matches) fillerCount += matches.length;
   });
+
+  // 최소 녹음 시간 체크 (5 초 미만 - 경고만 표시)
+  if (totalSeconds < 5) {
+    showToast({
+      type: 'warning',
+      title: '녹음 시간이 짧습니다',
+      message: '5 초 미만 녹음 (' + totalSeconds + '초) 은 정확한 분석이 어렵습니다. 10 초 이상 말하기를 추천합니다.',
+      duration: 4000,
+      icon: '⚠️'
+    });
+    // 저장 계속 진행
+  }
+
+  // 단어가 하나도 없는 경우 - 경고만 표시하고 저장 진행
+  if (words.length === 0) {
+    showToast({
+      type: 'warning',
+      title: '인식된 음성이 없습니다',
+      message: '음성이 인식되지 않았지만 기록은 저장됩니다. 다시 시도하거나 계속 진행하세요.',
+      duration: 4000,
+      icon: '⚠️'
+    });
+    // 저장은 계속 진행 (return 제거)
+  }
 
   // 점수 계산 (더 엄격하고 정확하게 - 4 가지 항목 각 25 점)
   let score = 100;
@@ -591,29 +503,6 @@ async function saveResult() {
   else if (words.length < 30) score -= 10;
   else if (words.length < 50) score -= 5;
 
-  // 음성이 인식되지 않은 경우 - 0 점 처리
-  if (words.length === 0) {
-    score = 0;
-    showToast({
-      type: 'warning',
-      title: '음성이 인식되지 않았습니다',
-      message: '마이크 설정을 확인하고 명확하게 말해주세요.',
-      duration: 4000,
-      icon: '⚠️'
-    });
-  }
-
-  // 최소 녹음 시간 체크 (5 초 미만 - 경고만 표시)
-  if (totalSeconds < 5) {
-    showToast({
-      type: 'warning',
-      title: '녹음 시간이 짧습니다',
-      message: '5 초 미만 녹음 (' + totalSeconds + '초) 은 정확한 분석이 어렵습니다. 10 초 이상 말하기를 추천합니다.',
-      duration: 4000,
-      icon: '⚠️'
-    });
-  }
-
   // 최소 점수 0 점
   score = Math.max(0, Math.min(100, score));
 
@@ -631,12 +520,11 @@ async function saveResult() {
     transcript: finalTranscript.trim().slice(0, 500),
   };
 
-  // 오디오 저장 - 모든 청크를 하나로 합침
+  // 오디오 저장
   currentRecordId = record.id;
-  if (allAudioChunks.length > 0) {
+  if (audioBlob) {
     try {
-      const finalAudioBlob = new Blob(allAudioChunks, { type: 'audio/webm' });
-      await saveAudioToDB(record.id, finalAudioBlob);
+      await saveAudioToDB(record.id, audioBlob);
     } catch (err) {
       console.error('오디오 저장 실패:', err);
     }
@@ -686,9 +574,6 @@ function resetPractice() {
   audioBlob = null;
   isPlaying = false;
   clearInterval(audioProgressInterval);
-  
-  // 오디오 청크 초기화
-  allAudioChunks = [];
 
   finalTranscript = '';
   interimTranscript = '';
@@ -699,6 +584,8 @@ function resetPractice() {
 
   document.getElementById('timerDisplay').textContent = '00:00';
   document.getElementById('transcriptText').innerHTML = `<span class="transcript-placeholder">${t('practice-transcript-ph')}</span>`;
+  const aiFeedbackPrompt = document.getElementById('aiFeedbackPrompt');
+  if (aiFeedbackPrompt) aiFeedbackPrompt.style.display = 'none';
   document.getElementById('saveSection').style.display = 'none';
   document.getElementById('audioPlayerWrap').classList.remove('show');
   const btn = document.getElementById('recordBtn');
@@ -761,72 +648,3 @@ function seekAudio(event) {
   audioElement.currentTime = percent * audioElement.duration;
   document.getElementById('audioProgressBar').style.width = (percent * 100) + '%';
 }
-
-// 음성 인식 언어 변경 함수
-function changeSpeechLanguage() {
-  const select = document.getElementById('speechLangSelect');
-  if (!select) return;
-  speechLanguage = select.value;
-  localStorage.setItem('sc_speech_lang', speechLanguage);
-
-  // 현재 선택된 언어 표시 업데이트
-  updateSpeechLangDisplay();
-
-  console.log('Speech language changed to:', speechLanguage);
-  console.log('Audio chunks preserved:', allAudioChunks.length);
-
-  // 녹음 중이면 음성 인식 재시작 (오디오 청크는 유지됨)
-  if (isRecording && recognition) {
-    recognition.stop();
-    setTimeout(() => {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.lang = speechLanguage;
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.onresult = function(event) {
-        interimTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript + ' ';
-            resetSilenceTimer();
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-            resetSilenceTimer();
-          }
-        }
-        renderTranscript();
-        updateStats();
-      };
-      recognition.start();
-    }, 100);
-  }
-}
-
-// 현재 음성 인식 언어 표시 업데이트
-function updateSpeechLangDisplay() {
-  const display = document.getElementById('currentSpeechLang');
-  const select = document.getElementById('speechLangSelect');
-  if (!display || !select) return;
-  
-  const langNames = {
-    'ko-KR': '한국어',
-    'en-US': 'English',
-    'zh-CN': '中文',
-    'ja-JP': '日本語'
-  };
-  
-  const currentLang = select.value;
-  display.textContent = '(' + (langNames[currentLang] || currentLang) + ')';
-}
-
-// 페이지 로드 시 선택된 언어 설정
-document.addEventListener('DOMContentLoaded', () => {
-  const select = document.getElementById('speechLangSelect');
-  if (select) {
-    select.value = speechLanguage;
-    updateSpeechLangDisplay();
-    console.log('Initial speech language:', speechLanguage);
-  }
-});
-  

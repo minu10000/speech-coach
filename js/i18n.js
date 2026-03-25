@@ -127,7 +127,9 @@ const i18n = {
       'practice-audio-title': '🔊 내 녹음 파일',
       'practice-btn-feedback': 'AI 상세 피드백 보기',
       'practice-btn-save': '💾 결과 저장',
-      
+      'practice-alert-no-speech': '음성을 인식할 수 없습니다. 다시 시도해주세요.',
+      'practice-alert-browser-not-supported': '이 브라우저는 음성 인식을 지원하지 않습니다.\nChrome 브라우저를 사용해 주세요.',
+
       // Profile Page
       'profile-title': '내 프로필',
       'profile-sub': '프로필 정보와 연습 통계를 확인하세요',
@@ -213,6 +215,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 홈',
@@ -350,7 +359,9 @@ const i18n = {
       'practice-audio-title': '🔊 My Recording',
       'practice-btn-feedback': 'View AI Feedback',
       'practice-btn-save': '💾 Save Result',
-      
+      'practice-alert-no-speech': 'Could not recognize speech. Please try again.',
+      'practice-alert-browser-not-supported': 'This browser does not support speech recognition.\nPlease use Chrome browser.',
+
       // Profile Page
       'profile-title': 'My Profile',
       'profile-sub': 'View profile info and practice statistics',
@@ -436,6 +447,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 Home',
@@ -573,7 +591,9 @@ const i18n = {
       'practice-audio-title': '🔊 我的录音',
       'practice-btn-feedback': '查看 AI 详细反馈',
       'practice-btn-save': '💾 保存结果',
-      
+      'practice-alert-no-speech': '无法识别语音。请重试。',
+      'practice-alert-browser-not-supported': '此浏览器不支持语音识别。\n请使用 Chrome 浏览器。',
+
       // Profile Page
       'profile-title': '我的资料',
       'profile-sub': '查看个人资料和练习统计',
@@ -663,6 +683,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 首页',
@@ -800,7 +827,9 @@ const i18n = {
       'practice-audio-title': '🔊 私の録音',
       'practice-btn-feedback': 'AI 詳細フィードバックを見る',
       'practice-btn-save': '💾 結果を保存',
-      
+      'practice-alert-no-speech': '音声を認識できませんでした。もう一度お試しください。',
+      'practice-alert-browser-not-supported': 'このブラウザは音声認識をサポートしていません。\nChrome ブラウザーを使用してください。',
+
       // Profile Page
       'profile-title': 'マイプロフィール',
       'profile-sub': 'プロフィール情報と練習統計を確認',
@@ -890,6 +919,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 ホーム',
@@ -1027,7 +1063,9 @@ const i18n = {
       'practice-audio-title': '🔊 Mi Grabación',
       'practice-btn-feedback': 'Ver Retroalimentación de IA',
       'practice-btn-save': '💾 Guardar Resultado',
-      
+      'practice-alert-no-speech': 'No se pudo reconocer el habla. Intente nuevamente.',
+      'practice-alert-browser-not-supported': 'Este navegador no soporta reconocimiento de voz.\nPor favor use Chrome.',
+
       // Profile Page
       'profile-title': 'Mi Perfil',
       'profile-sub': 'Ver información de perfil y estadísticas de práctica',
@@ -1117,6 +1155,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 Inicio',
@@ -1254,7 +1299,9 @@ const i18n = {
       'practice-audio-title': '🔊 Mon Enregistrement',
       'practice-btn-feedback': 'Voir le Retour IA',
       'practice-btn-save': '💾 Sauvegarder',
-      
+      'practice-alert-no-speech': 'Impossible de reconnaître la parole. Veuillez réessayer.',
+      'practice-alert-browser-not-supported': 'Ce navigateur ne prend pas en charge la reconnaissance vocale.\nVeuillez utiliser Chrome.',
+
       // Profile Page
       'profile-title': 'Mon Profil',
       'profile-sub': 'Voir infos de profil et statistiques de pratique',
@@ -1344,6 +1391,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 Accueil',
@@ -1481,7 +1535,9 @@ const i18n = {
       'practice-audio-title': '🔊 Meine Aufnahme',
       'practice-btn-feedback': 'KI-Feedback Ansehen',
       'practice-btn-save': '💾 Ergebnis Speichern',
-      
+      'practice-alert-no-speech': 'Sprache konnte nicht erkannt werden. Bitte versuchen Sie es erneut.',
+      'practice-alert-browser-not-supported': 'Dieser Browser unterstützt keine Spracherkennung.\nBitte verwenden Sie Chrome.',
+
       // Profile Page
       'profile-title': 'Mein Profil',
       'profile-sub': 'Profilinfos und Übungsstatistiken ansehen',
@@ -1571,6 +1627,13 @@ const i18n = {
       'lang-es': 'Español',
       'lang-fr': 'Français',
       'lang-de': 'Deutsch',
+      'lang-korean': '한국어',
+      'lang-english': 'English',
+      'lang-chinese': '中文',
+      'lang-japanese': '日本語',
+      'lang-spanish': 'Español',
+      'lang-french': 'Français',
+      'lang-german': 'Deutsch',
       
       // Common
       'home-btn': '🏠 Startseite',
@@ -1595,7 +1658,6 @@ const i18n = {
     if (this.translations[lang]) {
       this.currentLang = lang;
       localStorage.setItem('speechcoach_lang', lang);
-      this.applyTranslations();
     }
   },
   
@@ -1610,32 +1672,44 @@ const i18n = {
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const translation = this.t(key);
-      
+
       if (!translation) return;
-      
+
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-        if (el.getAttribute('placeholder')) {
+        if (el.hasAttribute('placeholder')) {
           el.placeholder = translation;
         } else {
           el.value = translation;
         }
       } else if (el.tagName === 'IMG') {
         el.alt = translation;
+      } else if (el.tagName === 'A') {
+        // 링크 요소는 텍스트만 변경
+        el.textContent = translation;
       } else {
         // 줄바꿈 처리 및 HTML 콘텐츠 업데이트
         el.innerHTML = translation.replace(/\\n/g, '<br>');
       }
     });
-    
+
+    // data-i18n-placeholder 속성이 있는 모든 요소 찾기
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      const translation = this.t(key);
+      if (translation && el.hasAttribute('placeholder')) {
+        el.placeholder = translation;
+      }
+    });
+
     // 언어 버튼 텍스트 업데이트
     const currentLangEl = document.getElementById('currentLang');
     if (currentLangEl) {
       currentLangEl.textContent = this.t('lang-' + this.currentLang);
     }
-    
+
     // html lang 속성 업데이트
     document.documentElement.lang = this.currentLang;
-    
+
     // 커스텀 이벤트 발생 - 다른 스크립트에서 언어 변경을 감지할 수 있음
     window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: this.currentLang } }));
   },
@@ -1645,20 +1719,28 @@ const i18n = {
     const langBtn = document.getElementById('langBtn');
     const langDropdown = document.getElementById('langDropdown');
     const langOptions = document.querySelectorAll('.lang-option');
-    
+
     if (!langBtn) return;
-    
-    // 저장된 언어 불러오기
+
+    // 저장된 언어 불러오기 및 설정
     const savedLang = localStorage.getItem('speechcoach_lang') || 'ko';
     this.setLang(savedLang);
     
+    // UI 업데이트
+    langOptions.forEach(opt => {
+      opt.classList.remove('active');
+      if (opt.getAttribute('data-lang') === savedLang) {
+        opt.classList.add('active');
+      }
+    });
+
     // 언어 버튼 클릭
     langBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       langBtn.classList.toggle('active');
       langDropdown.classList.toggle('show');
     });
-    
+
     // 언어 옵션 클릭
     langOptions.forEach(option => {
       option.addEventListener('click', (e) => {
@@ -1666,17 +1748,20 @@ const i18n = {
         e.stopPropagation();
         const lang = option.getAttribute('data-lang');
         const label = option.getAttribute('data-label');
-        
+
         this.setLang(lang);
-        
+
         langOptions.forEach(opt => opt.classList.remove('active'));
         option.classList.add('active');
-        
+
         langBtn.classList.remove('active');
         langDropdown.classList.remove('show');
+
+        // 번역 적용
+        this.applyTranslations();
       });
     });
-    
+
     // 외부 클릭 시 닫기
     document.addEventListener('click', () => {
       langBtn.classList.remove('active');
@@ -1688,4 +1773,18 @@ const i18n = {
 // DOMContentLoaded 시 초기화
 document.addEventListener('DOMContentLoaded', () => {
   i18n.initLangSwitcher();
+  i18n.applyTranslations();
 });
+
+// 전역에서 사용 가능한 번역 함수
+window.translatePage = function() {
+  i18n.applyTranslations();
+};
+
+window.getCurrentLanguage = function() {
+  return i18n.currentLang;
+};
+
+window.t = function(key) {
+  return i18n.t(key);
+};

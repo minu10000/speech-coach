@@ -140,7 +140,9 @@ function loadRecords() {
   if (user) {
     return getUserRecords(user.id);
   }
-  return JSON.parse(localStorage.getItem('sc_records') || '[]');
+  // 게스트 모드 - sessionStorage 에서 읽기
+  const guestRecord = sessionStorage.getItem('sc_guest_record');
+  return guestRecord ? [JSON.parse(guestRecord)] : [];
 }
 
 function createRadarChart(ctx, scores, label) {

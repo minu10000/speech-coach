@@ -1,5 +1,18 @@
 // ===== stats.js =====
 
+// 다국어 지원을 위한 헬퍼 함수
+function t(key) {
+  if (window.i18n && typeof window.i18n.t === 'function') {
+    return window.i18n.t(key);
+  }
+  const fallbacks = {
+    'stats-empty-title': '아직 연습 기록이 없어요',
+    'stats-empty-sub': '첫 번째 연습을 시작해보세요!',
+    'stats-btn-practice': '연습 시작하기'
+  };
+  return fallbacks[key] || key;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   // 네비게이션 바 로그인 상태 반영
   if (typeof applyNavAuth === 'function') {
@@ -26,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (user) {
       records = getUserRecords(user.id);
     } else {
-      // 게스트는 sessionStorage 에서 읽기 (창 닫으면 삭제됨)
       const guestRecord = sessionStorage.getItem('sc_guest_record');
       if (guestRecord) {
         records = [JSON.parse(guestRecord)];
@@ -42,16 +54,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (records.length === 0) {
       totalCountEl.textContent = '0';
-      totalTimeEl.textContent = '0분';
+      totalTimeEl.textContent = '0 분';
       avgSilenceEl.textContent = '0%';
       bestScoreEl.textContent = '—';
       clearAllBtn.style.display = 'none';
       recordsListEl.innerHTML = `
         <div class="empty-state">
           <span class="e-icon">🎤</span>
-          <h3>아직 연습 기록이 없어요</h3>
-          <p>첫 번째 연습을 시작해보세요!</p>
-          <a href="practice.html" class="btn btn-primary">연습 시작하기</a>
+          <h3>${t('stats-empty-title')}</h3>
+          <p>${t('stats-empty-sub')}</p>
+          <a href="practice.html" class="btn btn-primary">${t('stats-btn-practice')}</a>
         </div>`;
       return;
     }
@@ -94,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
       clearUserRecords(user.id);
     } else {
       sessionStorage.removeItem('sc_guest_record');
+      localStorage.removeItem('sc_last_record');
     }
     render();
   };
@@ -102,5 +115,10 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = `stats-detail.html?id=${recordId}`;
   };
 
+  render();
+});
+
+// 언어 변경 시 페이지 다시 그리기
+window.addEventListener('languageChanged', () => {
   render();
 });

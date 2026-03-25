@@ -260,8 +260,18 @@ document.getElementById('editBioBtn').addEventListener('click', openBioModal);
 // 통계 로드
 function loadStats() {
   const user = getCurrentUser();
-  const records = user ? getUserRecords(user.id) : JSON.parse(localStorage.getItem('sc_records') || '[]');
+  let records = [];
   
+  if (user) {
+    records = getUserRecords(user.id);
+  } else {
+    // 게스트 모드 - sessionStorage 에서 읽기
+    const guestRecord = sessionStorage.getItem('sc_guest_record');
+    if (guestRecord) {
+      records = [JSON.parse(guestRecord)];
+    }
+  }
+
   if (records.length === 0) {
     document.getElementById('totalCount').textContent = '0';
     document.getElementById('totalTime').textContent = '0 분';
@@ -410,8 +420,18 @@ function createRadarChart(data) {
 // 뱃지 시스템
 function loadBadges() {
   const user = getCurrentUser();
-  const records = user ? getUserRecords(user.id) : JSON.parse(localStorage.getItem('sc_records') || '[]');
+  let records = [];
   
+  if (user) {
+    records = getUserRecords(user.id);
+  } else {
+    // 게스트 모드 - sessionStorage 에서 읽기
+    const guestRecord = sessionStorage.getItem('sc_guest_record');
+    if (guestRecord) {
+      records = [JSON.parse(guestRecord)];
+    }
+  }
+
   const badges = [];
   
   // 연습 횟수 뱃지

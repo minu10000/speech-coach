@@ -283,6 +283,21 @@
       <p data-i18n="practice-sub">버튼을 눌러 연습을 시작하세요. 마이크 권한이 필요합니다.</p>
     </div>
 
+    <!-- 음성 인식 언어 선택 -->
+    <div class="card" style="margin-bottom:1rem; padding:1rem 1.2rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; background:rgba(123,99,248,0.08); border:1px solid rgba(123,99,248,0.2);">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span style="font-size:1.2rem;">🌐</span>
+        <span style="font-size:0.9rem; font-weight:600; color:#fff;">음성 인식 언어</span>
+        <span id="currentSpeechLang" style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-left:0.5rem;">(한국어)</span>
+      </div>
+      <select id="speechLangSelect" onchange="changeSpeechLanguage()" style="padding:0.5rem 1rem; background:rgba(30,30,40,0.9); border:1px solid rgba(123,99,248,0.4); border-radius:8px; color:#fff; font-size:0.9rem; font-weight:600; cursor:pointer; min-width:150px; outline:none;">
+        <option value="ko-KR">한국어</option>
+        <option value="en-US">English</option>
+        <option value="zh-CN">中文</option>
+        <option value="ja-JP">日本語</option>
+      </select>
+    </div>
+
     <div class="timer-card" id="timerCard">
       <div class="timer-num" id="timerDisplay">00:00</div>
       <div class="status-chip chip-ready" id="statusBadge">
@@ -336,11 +351,6 @@
       </div>
     </div>
 
-    <div class="feedback-card" id="feedbackBox" style="display:none;">
-      <div class="section-title" data-i18n="practice-feedback-title">분석 결과</div>
-      <div id="feedbackList"></div>
-    </div>
-
     <!-- 오디오 플레이어 -->
     <div class="audio-player-wrap" id="audioPlayerWrap">
       <div class="audio-player-title" data-i18n="practice-audio-title">🔊 내 녹음 파일</div>
@@ -357,11 +367,11 @@
     </div>
 
     <div class="save-bar" id="saveSection" style="display:none;">
-      <a href="feedback.html" class="btn btn-outline" data-i18n="practice-btn-feedback">AI 상세 피드백 보기</a>
-      <button class="btn btn-success btn-lg" onclick="saveResult()" data-i18n="practice-btn-save">💾 결과 저장</button>
+      <button class="btn btn-success btn-lg" onclick="saveResult()" data-i18n="practice-btn-save">💾 결과 저장 (AI 피드백 보기)</button>
     </div>
   </div>
 
+  <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/practice.js"></script>
   <script>
@@ -383,7 +393,7 @@
 
     // 초기 상태 설정
     document.getElementById('statusBadge').className = 'status-chip chip-ready';
-    
+
     const _originalSetStatus = setStatus;
     setStatus = function(type, text) {
       const badge = document.getElementById('statusBadge');
@@ -392,6 +402,5 @@
       document.getElementById('statusText').textContent = text;
     };
   </script>
-  <script src="js/i18n.js"></script>
 </body>
 </html>
