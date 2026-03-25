@@ -564,35 +564,11 @@ async function saveResult() {
     if (matches) fillerCount += matches.length;
   });
 
-  // 점수 계산 (더 엄격하고 정확하게 - 4 가지 항목 각 25 점)
-  let score = 100;
+  // === 점수 계산 (4 가지 항목 각 25 점, 총 100 점) ===
+  let score = 0; // 기본값 0 점으로 초기화
 
-  // 1. 침묵 비율 (25 점 감점)
-  if (silenceRate > 50) score -= 25;
-  else if (silenceRate > 35) score -= 18;
-  else if (silenceRate > 25) score -= 10;
-  else if (silenceRate > 15) score -= 5;
-
-  // 2. 말하기 속도 (25 점 감점)
-  if (wpm < 80 || wpm > 280) score -= 25;
-  else if (wpm < 100 || wpm > 250) score -= 18;
-  else if (wpm < 130 || wpm > 220) score -= 10;
-  else if (wpm < 150 || wpm > 200) score -= 5;
-
-  // 3. 추임새 (25 점 감점)
-  if (fillerCount > 10) score -= 25;
-  else if (fillerCount > 6) score -= 18;
-  else if (fillerCount > 3) score -= 10;
-  else if (fillerCount > 1) score -= 5;
-
-  // 4. 발화량 (25 점 감점)
-  if (words.length < 10) score -= 25;
-  else if (words.length < 20) score -= 18;
-  else if (words.length < 30) score -= 10;
-  else if (words.length < 50) score -= 5;
-
-  // 음성이 인식되지 않은 경우 - 0 점 처리
-  if (words.length === 0) {
+  // 음성이 전혀 인식되지 않은 경우 - 0 점 처리
+  if (words.length === 0 || finalTranscript.trim() === '') {
     score = 0;
     showToast({
       type: 'warning',
@@ -601,6 +577,42 @@ async function saveResult() {
       duration: 4000,
       icon: '⚠️'
     });
+  }
+  else {
+    score = 100;
+
+    // 1. 침묵 비율 (25 점 감점)
+    if (silenceRate > 50) score -= 25;
+    else if (silenceRate > 35) score -= 18;
+    else if (silenceRate > 25) score -= 10;
+    else if (silenceRate > 15) score -= 5;
+
+    // 2. 말하기 속도 (25 점 감점)
+    if (wpm < 80 || wpm > 280) score -= 25;
+    else if (wpm < 100 || wpm > 250) score -= 18;
+    else if (wpm < 130 || wpm > 220) score -= 10;
+    else if (wpm < 150 || wpm > 200) score -= 5;
+
+    // 3. 추임새 (25 점 감점)
+    if (fillerCount > 10) score -= 25;
+    else if (fillerCount > 6) score -= 18;
+    else if (fillerCount > 3) score -= 10;
+    else if (fillerCount > 1) score -= 5;
+
+    // 4. 발화량 (25 점 감점) - 단어 수에 따라 자연스럽게 감점
+    if (words.length === 1) score -= 22;      // 1 단어 → 3 점 (100-22-25-25-25=3)
+    else if (words.length === 2) score -= 20; // 2 단어 → 5 점
+    else if (words.length === 3) score -= 18; // 3 단어 → 7 점
+    else if (words.length === 4) score -= 16; // 4 단어 → 9 점
+    else if (words.length === 5) score -= 14; // 5 단어 → 11 점
+    else if (words.length < 10) score -= 12;  // 6-9 단어 → 13 점
+    else if (words.length < 20) score -= 8;   // 10-19 단어 → 17 점
+    else if (words.length < 30) score -= 5;   // 20-29 단어 → 20 점
+    else if (words.length < 50) score -= 2;   // 30-49 단어 → 23 점
+    // 50 단어 이상 → 감점 없음 (25 점 만점)
+
+    // 최소 점수 0 점
+    score = Math.max(0, Math.min(100, score));
   }
 
   // 최소 녹음 시간 체크 (5 초 미만 - 경고만 표시)
@@ -613,9 +625,6 @@ async function saveResult() {
       icon: '⚠️'
     });
   }
-
-  // 최소 점수 0 점
-  score = Math.max(0, Math.min(100, score));
 
   const record = {
     id: Date.now(),
