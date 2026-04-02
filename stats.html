@@ -76,6 +76,137 @@
       background-clip: text; letter-spacing: -0.03em; text-align: center;
     }
     .rec-score-lbl { font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: -0.1rem; }
+    .edit-name-btn {
+      background: rgba(123, 99, 248, 0.15);
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .edit-name-btn:hover {
+      background: rgba(123, 99, 248, 0.3);
+      border-color: rgba(123, 99, 248, 0.6);
+      transform: scale(1.05);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-content {
+      background: linear-gradient(135deg, rgba(30, 30, 40, 0.98), rgba(20, 20, 28, 0.98));
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(123, 99, 248, 0.1);
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .modal-overlay.show .modal-content {
+      transform: scale(1) translateY(0);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+    .modal-close {
+      background: rgba(123, 99, 248, 0.15);
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 1.5rem;
+      color: #a78bfa;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: rgba(123, 99, 248, 0.3);
+      transform: rotate(90deg);
+    }
+    .modal-body {
+      margin-bottom: 1.5rem;
+    }
+    .modal-body label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e0e0e0;
+      margin-bottom: 0.5rem;
+    }
+    .modal-body input {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      background: rgba(30, 30, 40, 0.8);
+      border: 2px solid rgba(123, 99, 248, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+    .modal-body input:focus {
+      outline: none;
+      border-color: rgba(123, 99, 248, 0.8);
+      box-shadow: 0 0 0 4px rgba(123, 99, 248, 0.15);
+      background: rgba(30, 30, 40, 0.95);
+    }
+    .modal-body input.error {
+      border-color: rgba(239, 68, 68, 0.8);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+    }
+    .modal-body input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .modal-hint {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 0.5rem;
+      text-align: right;
+    }
+    .modal-footer {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: flex-end;
+    }
+    .modal-footer .btn {
+      flex: 1;
+      max-width: 120px;
+    }
 
     /* empty */
     .empty-state {

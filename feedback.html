@@ -189,6 +189,179 @@
     .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
     .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
     @media(max-width:768px){ .lang-switcher { bottom: 1rem; right: 1rem; } .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; } }
+
+    /* AI Feedback Section */
+    .ai-feedback-section-wrap {
+      margin-top: 1.5rem; margin-bottom: 1rem;
+    }
+    .ai-feedback-generate-btn {
+      width: 100%; padding: 1.2rem;
+      background: linear-gradient(135deg, rgba(123, 99, 248, 0.15), rgba(168, 85, 247, 0.15));
+      border: 2px dashed rgba(123, 99, 248, 0.4);
+      border-radius: var(--r-xl);
+      color: #fff; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: all 0.25s ease;
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    }
+    .ai-feedback-generate-btn:hover {
+      background: linear-gradient(135deg, rgba(123, 99, 248, 0.25), rgba(168, 85, 247, 0.25));
+      border-color: rgba(123, 99, 248, 0.7);
+      transform: translateY(-2px);
+    }
+    .ai-feedback-generate-btn:disabled {
+      opacity: 0.6; cursor: not-allowed; transform: none;
+    }
+
+    /* AI Loading */
+    .ai-loading {
+      text-align: center; padding: 3rem 2rem;
+      background: rgba(123, 99, 248, 0.05);
+      border-radius: var(--r-xl);
+    }
+    .ai-loading-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid rgba(123, 99, 248, 0.2);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-loading p { font-size: 0.95rem; color: var(--text-sub); margin-bottom: 0.4rem; }
+    .ai-loading-sub { font-size: 0.82rem; color: var(--text-dim); }
+
+    /* AI Error */
+    .ai-error {
+      text-align: center; padding: 2.5rem;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--r-xl);
+    }
+    .ai-error-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .ai-error p { margin-bottom: 0.8rem; }
+    .ai-error strong { color: var(--text-sub); }
+
+    /* AI Feedback Card */
+    .ai-feedback-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-2xl); padding: 2rem;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+    }
+    .ai-feedback-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.8rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .ai-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 1rem; border-radius: 99px;
+      background: linear-gradient(135deg, rgba(123, 99, 248, 0.2), rgba(168, 85, 247, 0.2));
+      border: 1px solid rgba(123, 99, 248, 0.4);
+      font-size: 0.82rem; font-weight: 700; color: #fff;
+    }
+    .ai-model-badge {
+      font-size: 0.7rem; font-weight: 700;
+      padding: 0.25rem 0.7rem; border-radius: 99px;
+      background: rgba(123, 99, 248, 0.15);
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      color: #a78bfa; text-transform: uppercase;
+    }
+    .ai-feedback-section { margin-bottom: 1.6rem; }
+    .ai-feedback-section:last-child { margin-bottom: 0; }
+    .ai-section-title {
+      font-size: 0.9rem; font-weight: 800; color: var(--text-sub);
+      margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .ai-section-title::before {
+      content: ''; width: 3px; height: 14px;
+      background: var(--grad); border-radius: 99px;
+    }
+    .ai-overall-comment {
+      font-size: 0.92rem; line-height: 1.7; color: var(--text-muted);
+      background: rgba(123, 99, 248, 0.05);
+      padding: 1rem; border-radius: var(--r-lg);
+      border-left: 3px solid rgba(123, 99, 248, 0.4);
+    }
+    .ai-strengths-list {
+      list-style: none; padding: 0; margin: 0;
+    }
+    .ai-strengths-list li {
+      padding: 0.6rem 0.9rem; margin-bottom: 0.5rem;
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--r-lg);
+      font-size: 0.88rem; color: var(--text-sub);
+    }
+    .ai-weaknesses-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .weakness-item {
+      padding: 1rem; background: rgba(245, 158, 11, 0.05);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: var(--r-lg);
+    }
+    .weakness-header {
+      display: flex; align-items: center; gap: 0.7rem;
+      margin-bottom: 0.6rem;
+    }
+    .weakness-category {
+      font-size: 0.68rem; font-weight: 800;
+      padding: 0.2rem 0.6rem; border-radius: 99px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24; text-transform: uppercase;
+    }
+    .weakness-suggestion {
+      font-size: 0.85rem; line-height: 1.6; color: var(--text-muted);
+      padding-left: 0.9rem; border-left: 2px solid rgba(245, 158, 11, 0.3);
+    }
+    .ai-action-items { display: flex; flex-direction: column; gap: 0.8rem; }
+    .ai-action-items .action-item {
+      padding: 1rem; background: rgba(123, 99, 248, 0.05);
+      border: 1px solid rgba(123, 99, 248, 0.2);
+      border-radius: var(--r-lg);
+    }
+    .ai-action-items .act-num {
+      width: 28px; height: 28px; font-size: 0.75rem;
+    }
+    .ai-action-items .act-content strong {
+      display: block; margin-bottom: 0.4rem; color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+    .ai-action-items .act-content p {
+      margin: 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.6;
+    }
+    .ai-encouragement {
+      margin-top: 1.5rem; padding: 1.2rem;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(123, 99, 248, 0.08));
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--r-xl);
+      text-align: center;
+    }
+    .ai-encouragement p {
+      font-size: 0.9rem; color: var(--text-sub); font-style: italic;
+    }
+    .lang-btn svg { width: 18px; height: 18px; transition: transform 0.25s ease; }
+    .lang-btn.active svg { transform: rotate(180deg); }
+    .lang-dropdown {
+      position: absolute; bottom: calc(100% + 0.75rem); right: 0; min-width: 160px;
+      background: rgba(20, 20, 28, 0.95); backdrop-filter: blur(16px);
+      border: 1px solid rgba(123, 99, 248, 0.4); border-radius: 14px; padding: 0.5rem;
+      opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+    .lang-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    .lang-dropdown::before {
+      content: ''; position: absolute; bottom: -6px; right: 20px; width: 12px; height: 12px;
+      background: rgba(20, 20, 28, 0.95); border-right: 1px solid rgba(123, 99, 248, 0.4);
+      border-bottom: 1px solid rgba(123, 99, 248, 0.4); transform: rotate(45deg);
+    }
+    .lang-option {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.85rem;
+      border-radius: 10px; color: #e0e0e0; font-size: 0.87rem;
+      cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+    }
+    .lang-option:hover { background: rgba(123, 99, 248, 0.2); color: #fff; }
+    .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
+    .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
+    @media(max-width:768px){ .lang-switcher { bottom: 1rem; right: 1rem; } .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; } }
   </style>
 </head>
 <body>
@@ -231,6 +404,15 @@
 
     <div id="feedbackContent"></div>
 
+    <!-- AI Feedback Section -->
+    <div class="ai-feedback-section-wrap">
+      <button id="generateAIFeedbackBtn" class="ai-feedback-generate-btn" onclick="generateAIFeedback()">
+        <span>🤖</span>
+        <span>AI 상세 피드백 생성하기</span>
+      </button>
+      <div id="aiFeedbackContainer" style="margin-top: 1rem;"></div>
+    </div>
+
     <div class="bottom-bar">
       <a href="practice.html" class="btn btn-primary btn-lg" data-i18n="feedback-btn-retry">다시 연습하기</a>
       <a href="stats.html" class="btn btn-outline btn-lg" data-i18n="feedback-btn-stats">기록 보기</a>
@@ -239,6 +421,8 @@
 
   <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/api-config.js"></script>
+  <script src="js/ai-feedback.js"></script>
   <script src="js/feedback.js"></script>
   <script>
     // 페이지 로드 시 네비게이션 바 로그인 상태 반영
@@ -248,5 +432,7 @@
       }
     });
   </script>
+  
+  <!-- 언어 변경 스크립트 (i18n.js 에서 처리) -->
 </body>
 </html>

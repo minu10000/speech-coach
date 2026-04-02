@@ -174,7 +174,7 @@ function renderFeedback() {
         </div>
       </div>
     `;
-    
+
     // 네비게이션 바 업데이트
     if (typeof applyNavAuth === 'function') {
       applyNavAuth();
@@ -203,8 +203,11 @@ function renderFeedback() {
 
   // 음성이 인식되지 않은 경우 모든 점수 0 점 처리
   const noSpeech = record.wordCount === 0 || record.transcript.trim() === '';
-  
-  const grade = getGradeInfo(record.score);
+
+  // AI 피드백이 있으면 AI 점수 사용, 없으면 기존 점수 사용
+  const aiFeedback = window.aiGeneratedFeedback;
+  const score = aiFeedback?.scores?.overall || record.score;
+  const grade = getGradeInfo(score);
 
   const silenceScore = noSpeech ? 0 : getCategoryScore(record.silenceRate, 'silence');
   const speedScore   = noSpeech ? 0 : getCategoryScore(record.wpm, 'speed');

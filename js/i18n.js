@@ -189,6 +189,22 @@ const i18n = {
       'feedback-action-title': '📌 추천 연습 방법',
       'feedback-btn-retry': '다시 연습하기',
       'feedback-btn-stats': '기록 보기',
+
+      // Interview Page
+      'nav-interview': '모의 면접',
+      'interview-title': '모의 면접',
+      'interview-sub': '실제 면접 상황을 가정하여 연습하세요',
+      'interview-filter-all': '전체',
+      'interview-filter-interview': '면접',
+      'interview-filter-presentation': '발표',
+      'interview-filter-speech': '스피치',
+      'interview-filter-conversation': '대화',
+      'interview-progress-title': '📈 오늘의 연습 진행도',
+      'interview-btn-answer-start': '🎤 답변 시작',
+      'interview-btn-answer-stop': '⏹ 답변 종료',
+      'interview-btn-next': '➡️ 다음 질문',
+      'interview-label-question': '면접 질문',
+      'interview-label-tips': '💡 답변 팁',
       
       // Stats Detail Page
       'detail-back': '뒤로가기',
@@ -421,7 +437,23 @@ const i18n = {
       'feedback-action-title': '📌 Recommended Practice',
       'feedback-btn-retry': 'Try Again',
       'feedback-btn-stats': 'View Records',
-      
+
+      // Interview Page
+      'nav-interview': 'Mock Interview',
+      'interview-title': 'Mock Interview',
+      'interview-sub': 'Practice with realistic interview scenarios',
+      'interview-filter-all': 'All',
+      'interview-filter-interview': 'Interview',
+      'interview-filter-presentation': 'Presentation',
+      'interview-filter-speech': 'Speech',
+      'interview-filter-conversation': 'Conversation',
+      'interview-progress-title': '📈 Today\'s Progress',
+      'interview-btn-answer-start': '🎤 Start Answer',
+      'interview-btn-answer-stop': '⏹ Stop Answer',
+      'interview-btn-next': '➡️ Next Question',
+      'interview-label-question': 'Interview Question',
+      'interview-label-tips': '💡 Answer Tips',
+
       // Stats Detail Page
       'detail-back': 'Back',
       'detail-title': 'Practice Details',
@@ -657,7 +689,23 @@ const i18n = {
       'feedback-action-title': '📌 推荐练习方法',
       'feedback-btn-retry': '重新练习',
       'feedback-btn-stats': '查看记录',
-      
+
+      // Interview Page
+      'nav-interview': '模拟面试',
+      'interview-title': '模拟面试',
+      'interview-sub': '在实际面试情境中练习',
+      'interview-filter-all': '全部',
+      'interview-filter-interview': '面试',
+      'interview-filter-presentation': '发表',
+      'interview-filter-speech': '演讲',
+      'interview-filter-conversation': '对话',
+      'interview-progress-title': '📈 今日练习进度',
+      'interview-btn-answer-start': '🎤 开始回答',
+      'interview-btn-answer-stop': '⏹ 停止回答',
+      'interview-btn-next': '➡️ 下一个问题',
+      'interview-label-question': '面试问题',
+      'interview-label-tips': '💡 回答提示',
+
       // Stats Detail Page
       'detail-back': '返回',
       'detail-title': '练习记录详情',
@@ -893,7 +941,23 @@ const i18n = {
       'feedback-action-title': '📌 おすすめ練習方法',
       'feedback-btn-retry': '再練習',
       'feedback-btn-stats': '記録を見る',
-      
+
+      // Interview Page
+      'nav-interview': '模擬面接',
+      'interview-title': '模擬面接',
+      'interview-sub': '実際の面接状況を想定して練習しましょう',
+      'interview-filter-all': 'すべて',
+      'interview-filter-interview': '面接',
+      'interview-filter-presentation': '発表',
+      'interview-filter-speech': 'スピーチ',
+      'interview-filter-conversation': '会話',
+      'interview-progress-title': '📈 今日の練習進捗',
+      'interview-btn-answer-start': '🎤 回答開始',
+      'interview-btn-answer-stop': '⏹ 回答終了',
+      'interview-btn-next': '➡️ 次の質問',
+      'interview-label-question': '面接質問',
+      'interview-label-tips': '💡 回答ヒント',
+
       // Stats Detail Page
       'detail-back': '戻る',
       'detail-title': '練習記録詳細',
@@ -1129,7 +1193,23 @@ const i18n = {
       'feedback-action-title': '📌 Práctica Recomendada',
       'feedback-btn-retry': 'Intentar de Nuevo',
       'feedback-btn-stats': 'Ver Registros',
-      
+
+      // Interview Page
+      'nav-interview': 'Entrevista Simulada',
+      'interview-title': 'Entrevista Simulada',
+      'interview-sub': 'Practica con escenarios de entrevista realistas',
+      'interview-filter-all': 'Todo',
+      'interview-filter-interview': 'Entrevista',
+      'interview-filter-presentation': 'Presentación',
+      'interview-filter-speech': 'Discurso',
+      'interview-filter-conversation': 'Conversación',
+      'interview-progress-title': '📈 Progreso de Hoy',
+      'interview-btn-answer-start': '🎤 Iniciar Respuesta',
+      'interview-btn-answer-stop': '⏹ Detener Respuesta',
+      'interview-btn-next': '➡️ Siguiente Pregunta',
+      'interview-label-question': 'Pregunta de Entrevista',
+      'interview-label-tips': '💡 Consejos de Respuesta',
+
       // Stats Detail Page
       'detail-back': 'Atrás',
       'detail-title': 'Detalles de Práctica',
@@ -1365,7 +1445,23 @@ const i18n = {
       'feedback-action-title': '📌 Pratique Recommandée',
       'feedback-btn-retry': 'Réessayer',
       'feedback-btn-stats': 'Voir Enregistrements',
-      
+
+      // Interview Page
+      'nav-interview': 'Entretien Simulé',
+      'interview-title': 'Entretien Simulé',
+      'interview-sub': 'Entraînez-vous avec des scénarios d\'entretien réalistes',
+      'interview-filter-all': 'Tout',
+      'interview-filter-interview': 'Entretien',
+      'interview-filter-presentation': 'Présentation',
+      'interview-filter-speech': 'Discours',
+      'interview-filter-conversation': 'Conversation',
+      'interview-progress-title': '📈 Progrès du Jour',
+      'interview-btn-answer-start': '🎤 Commencer la Réponse',
+      'interview-btn-answer-stop': '⏹ Arrêter la Réponse',
+      'interview-btn-next': '➡️ Question Suivante',
+      'interview-label-question': 'Question d\'Entretien',
+      'interview-label-tips': '💡 Conseils de Réponse',
+
       // Stats Detail Page
       'detail-back': 'Retour',
       'detail-title': 'Détails de Pratique',
@@ -1601,7 +1697,23 @@ const i18n = {
       'feedback-action-title': '📌 Empfohlene Übung',
       'feedback-btn-retry': 'Erneut Versuchen',
       'feedback-btn-stats': 'Aufzeichnungen Ansehen',
-      
+
+      // Interview Page
+      'nav-interview': 'Simuliertes Vorstellungsgespräch',
+      'interview-title': 'Simuliertes Vorstellungsgespräch',
+      'interview-sub': 'Üben Sie mit realistischen Vorstellungsgespräch-Szenarien',
+      'interview-filter-all': 'Alle',
+      'interview-filter-interview': 'Vorstellungsgespräch',
+      'interview-filter-presentation': 'Präsentation',
+      'interview-filter-speech': 'Rede',
+      'interview-filter-conversation': 'Gespräch',
+      'interview-progress-title': '📈 Heutiger Fortschritt',
+      'interview-btn-answer-start': '🎤 Antwort Starten',
+      'interview-btn-answer-stop': '⏹ Antwort Stoppen',
+      'interview-btn-next': '➡️ Nächste Frage',
+      'interview-label-question': 'Vorstellungsgespräch-Frage',
+      'interview-label-tips': '💡 Antwort-Tipps',
+
       // Stats Detail Page
       'detail-back': 'Zurück',
       'detail-title': 'Übungsdetails',

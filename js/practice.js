@@ -721,7 +721,7 @@ function resetPractice() {
 // 오디오 재생/일시정지 토글
 function toggleAudioPlay() {
   if (!audioElement) return;
-  
+
   if (isPlaying) {
     audioElement.pause();
     isPlaying = false;
@@ -730,19 +730,55 @@ function toggleAudioPlay() {
     audioElement.play();
     isPlaying = true;
     updatePlayPauseIcon();
-    
+
     // 진행률 업데이트
     audioProgressInterval = setInterval(() => {
       if (audioElement && !audioElement.paused) {
         const percent = (audioElement.currentTime / audioElement.duration) * 100;
         document.getElementById('audioProgressBar').style.width = percent + '%';
-        document.getElementById('audioTime').textContent = 
+        document.getElementById('audioTime').textContent =
           `${formatTime(Math.floor(audioElement.currentTime))} / ${formatTime(Math.floor(audioElement.duration))}`;
       }
     }, 100);
   }
-  
+
   updatePlayPauseIcon();
+}
+
+// 오디오 파일 다운로드
+function downloadAudio() {
+  if (!audioBlob) {
+    showToast({
+      type: 'warning',
+      title: '다운로드 불가',
+      message: '오디오 파일이 없습니다. 먼저 녹음해주세요.',
+      duration: 3000
+    });
+    return;
+  }
+
+  const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  const recordKey = user ? 'sc_last_record_' + user.id : 'sc_guest_record';
+  const record = JSON.parse((user ? localStorage : sessionStorage).getItem(recordKey) || 'null');
+  
+  const date = record ? new Date(record.id).toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_') : Date.now();
+  const filename = `speech-coach-${date}.webm`;
+  
+  const url = URL.createObjectURL(audioBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showToast({
+    type: 'success',
+    title: '다운로드 완료',
+    message: '오디오 파일이 다운로드되었습니다.',
+    duration: 3000
+  });
 }
 
 // 재생/일시정지 아이콘 업데이트

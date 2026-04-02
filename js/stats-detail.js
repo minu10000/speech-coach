@@ -135,6 +135,16 @@ function getScoreColor(score) {
   return '#ef4444';
 }
 
+function getCategoryName(category) {
+  const categoryNames = {
+    interview: '면접',
+    presentation: '발표',
+    speech: '스피치',
+    conversation: '대화'
+  };
+  return categoryNames[category] || category;
+}
+
 function loadRecords() {
   const user = getCurrentUser();
   if (user) {
@@ -143,6 +153,24 @@ function loadRecords() {
   // 게스트 모드 - sessionStorage 에서 읽기
   const guestRecord = sessionStorage.getItem('sc_guest_record');
   return guestRecord ? [JSON.parse(guestRecord)] : [];
+}
+
+// 면접 기록 로드
+function loadInterviewRecords() {
+  const user = getCurrentUser();
+  let records = [];
+
+  if (user) {
+    // 로그인 사용자 - 사용자별 면접 기록
+    const userRecords = JSON.parse(localStorage.getItem('sc_interview_records_' + user.id) || '[]');
+    records = userRecords;
+  } else {
+    // 게스트 모드 - 게스트 면접 기록
+    const guestRecords = JSON.parse(localStorage.getItem('sc_guest_interview_records') || '[]');
+    records = guestRecords;
+  }
+
+  return records;
 }
 
 function createRadarChart(ctx, scores, label) {
@@ -420,10 +448,17 @@ function renderCompareSection() {
 
 function renderDetail() {
   const recordId = parseInt(getRecordIdFromUrl());
-  const records = loadRecords();
   
-  currentRecord = records.find(r => r.id === recordId);
+  // 면접 기록 먼저 확인
+  const interviewRecords = loadInterviewRecords();
+  currentRecord = interviewRecords.find(r => r.id === recordId);
   
+  // 면접 기록이 없으면 일반 연습 기록 확인
+  if (!currentRecord) {
+    const records = loadRecords();
+    currentRecord = records.find(r => r.id === recordId);
+  }
+
   if (!currentRecord) {
     document.getElementById('detailContent').innerHTML = `
       <div class="empty-state" style="text-align:center;padding:5rem 2rem;color:var(--text-dim);">
@@ -436,13 +471,30 @@ function renderDetail() {
     document.getElementById('compareBar').style.display = 'none';
     return;
   }
-  
+
+  // 면접 기록인지 확인 (type === 'interview' 또는 scenarioId 가 있는 경우)
+  const isInterview = currentRecord.type === 'interview' || currentRecord.scenarioId;
+
+  if (isInterview) {
+    // 면접 기록 렌더링
+    renderInterviewDetail();
+  } else {
+    // 일반 연습 기록 렌더링
+    renderPracticeDetail();
+  }
+}
+
+// 면접 기록 상세 렌더링
+function renderInterviewDetail() {
   const grade = getGradeInfo(currentRecord.score);
-  const silenceScore = getCategoryScore(currentRecord.silenceRate, 'silence');
-  const speedScore = getCategoryScore(currentRecord.wpm, 'speed');
-  const fillerScore = getCategoryScore(currentRecord.fillerCount, 'filler');
-  const wordsScore = getCategoryScore(currentRecord.wordCount, 'words');
-  
+  const categoryNames = {
+    interview: '면접',
+    presentation: '발표',
+    speech: '스피치',
+    conversation: '대화'
+  };
+  const categoryName = categoryNames[currentRecord.category] || currentRecord.category;
+
   document.getElementById('detailContent').innerHTML = `
     <!-- 종합 점수 -->
     <div class="score-card">
@@ -452,7 +504,53 @@ function renderDetail() {
       <span class="score-grade badge ${grade.cls}">${grade.label}</span>
       <div style="margin-top:1rem;font-size:0.85rem;color:var(--text-dim);">${currentRecord.date} 연습</div>
     </div>
-    
+
+    <!-- 면접 정보 -->
+    <div class="detail-grid" style="margin-bottom:1.5rem;">
+      <div class="stat-card">
+        <div class="stat-title">📋 시나리오</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;color:var(--text);">${currentRecord.scenarioTitle}</div>
+        <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.8;">
+          <div>카테고리: <strong style="color:var(--text);">${categoryName}</strong></div>
+          <div>제한 시간: ${formatTime(currentRecord.timeLimit)}</div>
+          <div>실제 시간: ${formatTime(currentRecord.actualTime)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 음성 인식 내용 -->
+    <div class="transcript-wrap">
+      <div class="transcript-title">📝 인식된 발화 내용</div>
+      <div class="transcript-text">${currentRecord.transcript || '인식된 내용이 없습니다.'}</div>
+    </div>
+
+    <!-- 비교 섹션 -->
+    <div id="compareSection"></div>
+  `;
+
+  // 오디오 플레이어 숨김 (면접 기록은 오디오 저장 안함)
+  const audioWrap = document.getElementById('audioWrap');
+  if (audioWrap) audioWrap.style.display = 'none';
+}
+
+// 일반 연습 기록 상세 렌더링
+function renderPracticeDetail() {
+  const grade = getGradeInfo(currentRecord.score);
+  const silenceScore = getCategoryScore(currentRecord.silenceRate, 'silence');
+  const speedScore = getCategoryScore(currentRecord.wpm, 'speed');
+  const fillerScore = getCategoryScore(currentRecord.fillerCount, 'filler');
+  const wordsScore = getCategoryScore(currentRecord.wordCount, 'words');
+
+  document.getElementById('detailContent').innerHTML = `
+    <!-- 종합 점수 -->
+    <div class="score-card">
+      <div class="score-label">종합 점수</div>
+      <div class="score-number">${currentRecord.score}</div>
+      <div class="score-max">/ 100 점</div>
+      <span class="score-grade badge ${grade.cls}">${grade.label}</span>
+      <div style="margin-top:1rem;font-size:0.85rem;color:var(--text-dim);">${currentRecord.date} 연습</div>
+    </div>
+
     <!-- 레이더 차트 -->
     <div class="chart-wrap">
       <div class="chart-title">영역별 분석</div>
@@ -460,7 +558,7 @@ function renderDetail() {
         <canvas id="radarChart"></canvas>
       </div>
     </div>
-    
+
     <!-- 상세 통계 -->
     <div class="detail-grid">
       <div class="stat-card">
@@ -472,7 +570,7 @@ function renderDetail() {
           발화 시간: ${formatTime(currentRecord.speakTime)}
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-title">⚡ 말하기 속도</div>
         <div class="stat-value" style="color:${getScoreColor(speedScore)}">${speedScore}점</div>
@@ -482,7 +580,7 @@ function renderDetail() {
           전체 시간: ${formatTime(currentRecord.totalTime)}
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-title">💬 언어 습관</div>
         <div class="stat-value" style="color:${getScoreColor(fillerScore)}">${fillerScore}점</div>
@@ -492,7 +590,7 @@ function renderDetail() {
           추임새 비율: ${currentRecord.wordCount > 0 ? Math.round((currentRecord.fillerCount / currentRecord.wordCount) * 100) : 0}%
         </div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-title">🗣 발음 & 발화량</div>
         <div class="stat-value" style="color:${getScoreColor(wordsScore)}">${wordsScore}점</div>
@@ -503,7 +601,7 @@ function renderDetail() {
         </div>
       </div>
     </div>
-    
+
     <!-- 오디오 플레이어 (녹음 파일) -->
     <div class="audio-wrap" id="audioWrap">
       <div class="audio-title">🔊 녹음 파일</div>
@@ -519,17 +617,17 @@ function renderDetail() {
       </div>
       <div class="no-audio" id="noAudio" style="display:none;">녹음 파일이 없습니다.</div>
     </div>
-    
+
     <!-- 음성 인식 내용 -->
     <div class="transcript-wrap">
       <div class="transcript-title">📝 인식된 발화 내용</div>
       <div class="transcript-text">${currentRecord.transcript || '인식된 내용이 없습니다.'}</div>
     </div>
-    
+
     <!-- 비교 섹션 -->
     <div id="compareSection"></div>
   `;
-  
+
   // 레이더 차트 생성
   setTimeout(() => {
     const ctx = document.getElementById('radarChart');
@@ -542,7 +640,7 @@ function renderDetail() {
         overall: currentRecord.score
       }, '내 점수');
     }
-    
+
     // 오디오 플레이어 초기화
     initAudioPlayer();
   }, 100);

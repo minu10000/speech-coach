@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>모의 면접 결과 - SpeechCoach</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .result-wrap {
+      max-width: 860px; margin: 0 auto;
+      padding: 2.8rem 1.5rem 6rem;
+      position: relative; z-index: 1;
+    }
+    .pg-header { margin-bottom: 2rem; text-align: center; }
+    .pg-header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.03em; }
+    .pg-header p { color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem; }
+
+    /* Result Card */
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-2xl);
+      padding: 2.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card::before {
+      content: '';
+      position: absolute;
+      width: 400px; height: 300px;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(123,99,248,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .result-badge {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: linear-gradient(135deg, rgba(123, 99, 248, 0.2), rgba(168, 85, 247, 0.2));
+      border: 1px solid rgba(123, 99, 248, 0.4);
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #a78bfa;
+      margin-bottom: 1.5rem;
+    }
+    .result-score {
+      font-size: 5rem;
+      font-weight: 900;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .result-score-label {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+    }
+    .result-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .result-info-item {
+      background: rgba(30, 30, 40, 0.8);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1rem;
+    }
+    .result-info-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 0.3rem;
+    }
+    .result-info-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Transcript */
+    .transcript-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .transcript-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .transcript-title::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: var(--grad);
+      border-radius: 99px;
+    }
+    .transcript-text {
+      background: rgba(30, 30, 40, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.2rem;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+      min-height: 100px;
+    }
+    .transcript-empty {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* Tips */
+    .tips-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .tips-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tips-title::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: var(--grad);
+      border-radius: 99px;
+    }
+    .tips-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .tips-list li {
+      padding: 0.8rem 1rem;
+      background: rgba(123, 99, 248, 0.05);
+      border: 1px solid rgba(123, 99, 248, 0.2);
+      border-radius: var(--r-lg);
+      margin-bottom: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .tips-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .result-info { grid-template-columns: 1fr; }
+      .result-score { font-size: 3.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-glow page-glow-1"></div>
+  <div class="page-glow page-glow-2"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="logo">🎤 SpeechCoach</a>
+    <ul class="nav-links">
+      <li><a href="practice.html" data-i18n="nav-practice">연습하기</a></li>
+      <li><a href="interview.html" data-i18n="nav-interview">모의 면접</a></li>
+      <li><a href="stats.html" data-i18n="nav-stats">내 기록</a></li>
+      <li class="auth-only"><a href="profile.html" data-i18n="nav-profile">프로필</a></li>
+      <li class="guest-only"><a href="login.html" data-i18n="nav-login">로그인</a></li>
+    </ul>
+  </nav>
+
+  <div class="lang-switcher">
+    <button class="lang-btn" id="langBtn" aria-label="언어 선택">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.785 10.77 8.07 15.61 3 18.129" />
+      </svg>
+      <span id="currentLang">한국어</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <a href="#" class="lang-option active" data-lang="ko" data-label="한국어"><span class="lang-flag">🇰🇷</span><span>한국어</span></a>
+      <a href="#" class="lang-option" data-lang="en" data-label="English"><span class="lang-flag">🇺🇸</span><span>English</span></a>
+      <a href="#" class="lang-option" data-lang="zh" data-label="中文"><span class="lang-flag">🇨🇳</span><span>中文</span></a>
+      <a href="#" class="lang-option" data-lang="ja" data-label="日本語"><span class="lang-flag">🇯🇵</span><span>日本語</span></a>
+      <a href="#" class="lang-option" data-lang="es" data-label="Español"><span class="lang-flag">🇪🇸</span><span>Español</span></a>
+      <a href="#" class="lang-option" data-lang="fr" data-label="Français"><span class="lang-flag">🇫🇷</span><span>Français</span></a>
+      <a href="#" class="lang-option" data-lang="de" data-label="Deutsch"><span class="lang-flag">🇩🇪</span><span>Deutsch</span></a>
+    </div>
+  </div>
+
+  <div class="result-wrap">
+    <div class="pg-header">
+      <h1>🎯 모의 면접 결과</h1>
+      <p>연습 결과를 확인하세요</p>
+    </div>
+
+    <div id="resultContent"></div>
+
+    <div class="action-buttons">
+      <a href="interview.html" class="btn btn-primary btn-lg">🔄 다시 연습하기</a>
+      <a href="stats.html" class="btn btn-outline btn-lg">📊 기록 보기</a>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // 결과 페이지 렌더링
+    function renderResult() {
+      const params = new URLSearchParams(window.location.search);
+      const recordId = params.get('id');
+      
+      if (!recordId) {
+        document.getElementById('resultContent').innerHTML = `
+          <div class="result-card">
+            <p>기록을 찾을 수 없습니다.</p>
+            <a href="interview.html" class="btn btn-primary">면접 연습하기</a>
+          </div>
+        `;
+        return;
+      }
+
+      const user = getCurrentUser();
+      let record = null;
+
+      // 사용자 기록에서 찾기
+      if (user) {
+        const records = JSON.parse(localStorage.getItem('sc_interview_records_' + user.id) || '[]');
+        record = records.find(r => r.id == recordId);
+      }
+      
+      // 게스트 기록에서도 찾기
+      if (!record) {
+        const guestRecords = JSON.parse(localStorage.getItem('sc_guest_interview_records') || '[]');
+        record = guestRecords.find(r => r.id == recordId);
+      }
+
+      if (!record) {
+        document.getElementById('resultContent').innerHTML = `
+          <div class="result-card">
+            <p>기록을 찾을 수 없습니다.</p>
+            <a href="interview.html" class="btn btn-primary">면접 연습하기</a>
+          </div>
+        `;
+        return;
+      }
+
+      const categoryNames = {
+        interview: '면접',
+        presentation: '발표',
+        speech: '스피치',
+        conversation: '대화'
+      };
+
+      const scenario = interviewScenarios.find(s => s.id === record.scenarioId);
+
+      document.getElementById('resultContent').innerHTML = `
+        <div class="result-card">
+          <div class="result-badge">🎤 ${categoryNames[record.category] || '면접'}</div>
+          <div class="result-score">${record.score || 0}</div>
+          <div class="result-score-label">점수</div>
+          
+          <div class="result-info">
+            <div class="result-info-item">
+              <div class="result-info-label">시나리오</div>
+              <div class="result-info-value">${record.scenarioTitle}</div>
+            </div>
+            <div class="result-info-item">
+              <div class="result-info-label">제한 시간</div>
+              <div class="result-info-value">${Math.floor(record.timeLimit / 60)}분 ${record.timeLimit % 60}초</div>
+            </div>
+            <div class="result-info-item">
+              <div class="result-info-label">실제 시간</div>
+              <div class="result-info-value">${formatTime(record.actualTime || 0)}</div>
+            </div>
+          </div>
+        </div>
+
+        ${scenario ? `
+        <div class="tips-section">
+          <div class="tips-title">💡 답변 팁</div>
+          <ul class="tips-list">
+            ${scenario.tips.map(tip => `<li>✅ ${tip}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
+
+        <div class="transcript-section">
+          <div class="transcript-title">📝 인식된 답변</div>
+          <div class="transcript-text">
+            ${record.transcript ? record.transcript : '<span class="transcript-empty">음성이 인식되지 않았습니다.</span>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function formatTime(sec) {
+      if (!sec || sec < 60) return (sec || 0) + '초';
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}분 ${s > 0 ? s + '초' : ''}`;
+    }
+
+    // 면접 시나리오 데이터 (interview.js 에서 복사)
+    const interviewScenarios = [
+      { id: 1, category: 'interview', title: '자기소개', timeLimit: 60, tips: ['간결하게 1 분 이내로', '지원 동기를 명확히', '구체적인 강점 제시'] },
+      { id: 2, category: 'interview', title: '장단점 질문', timeLimit: 90, tips: ['장점은 직무와 연관지어', '단점은 개선 노력 강조', '솔직하되 전략적으로'] },
+      { id: 3, category: 'interview', title: '어려움 극복', timeLimit: 120, tips: ['구체적인 상황 설명', '해결 과정 중점적으로', '배운 점 강조'] },
+      { id: 4, category: 'interview', title: '직무 적합성', timeLimit: 90, tips: ['회사 연구 결과 언급', '경험과 직무 연결', '미래 비전 제시'] },
+      { id: 5, category: 'interview', title: '경력 질문', timeLimit: 120, tips: ['구체적인 역할 설명', '성과를 숫자로', '배운 점 강조'] },
+      { id: 6, category: 'presentation', title: '제품 소개', timeLimit: 180, tips: ['문제 정의부터', '해결책 명확히', '장점 강조'] },
+      { id: 7, category: 'presentation', title: '프로젝트 결과 보고', timeLimit: 180, tips: ['목표부터 설명', '성과 중심으로', '향후 계획 포함'] },
+      { id: 8, category: 'presentation', title: '아이디어 제안', timeLimit: 150, tips: ['현황 분석 먼저', '구체적인 방안', '예상 효과 제시'] },
+      { id: 9, category: 'speech', title: '즉흥 스피치', timeLimit: 120, tips: ['서론 - 본론 - 결론', '구체적인 예시', '메시지 명확히'] },
+      { id: 10, category: 'speech', title: '감동 스피치', timeLimit: 120, tips: ['감정 표현 풍부하게', '구체적인 에피소드', '교훈으로 마무리'] },
+      { id: 11, category: 'speech', title: '설득 스피치', timeLimit: 150, tips: ['명확한 주장', '근거 제시', '반론 예측 및 대응'] },
+      { id: 12, category: 'conversation', title: '고객 응대', timeLimit: 90, tips: ['공감 먼저', '적극적인 태도', '구체적인 해결책'] },
+      { id: 13, category: 'conversation', title: '팀 회의', timeLimit: 60, tips: ['간결하게', '근거 함께', '협력적 태도'] },
+      { id: 14, category: 'conversation', title: '피드백 전달', timeLimit: 90, tips: ['구체적인 사례', '비난 아닌 제안', '지원 의지 표현'] }
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderResult();
+      if (typeof applyNavAuth === 'function') {
+        applyNavAuth();
+      }
+    });
+  </script>
+</body>
+</html>

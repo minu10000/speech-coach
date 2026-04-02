@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다국어 테스트 - SpeechCoach</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      background: #0f0f14;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    .test-section {
+      background: rgba(30, 30, 40, 0.8);
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .lang-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .lang-test-btn {
+      padding: 0.6rem 1.2rem;
+      background: rgba(123, 99, 248, 0.2);
+      border: 1px solid rgba(123, 99, 248, 0.4);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .lang-test-btn:hover {
+      background: rgba(123, 99, 248, 0.4);
+    }
+    .lang-test-btn.active {
+      background: rgba(123, 99, 248, 0.6);
+      border-color: rgba(123, 99, 248, 0.8);
+    }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    .result h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: #a78bfa;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌐 다국어 번역 테스트</h1>
+  <p>언어를 선택하여 번역이 정상적으로 작동하는지 확인하세요.</p>
+
+  <div class="test-section">
+    <h3>언어 선택</h3>
+    <div class="lang-buttons">
+      <button class="lang-test-btn active" data-lang="ko">🇰🇷 한국어</button>
+      <button class="lang-test-btn" data-lang="en">🇺🇸 English</button>
+      <button class="lang-test-btn" data-lang="zh">🇨🇳 中文</button>
+      <button class="lang-test-btn" data-lang="ja">🇯🇵 日本語</button>
+      <button class="lang-test-btn" data-lang="es">🇪🇸 Español</button>
+      <button class="lang-test-btn" data-lang="fr">🇫🇷 Français</button>
+      <button class="lang-test-btn" data-lang="de">🇩🇪 Deutsch</button>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h3>테스트 결과</h3>
+    <div class="result">
+      <h3>네비게이션</h3>
+      <div><strong>nav-practice:</strong> <span data-i18n="nav-practice">연습하기</span></div>
+      <div><strong>nav-interview:</strong> <span data-i18n="nav-interview">모의 면접</span></div>
+      <div><strong>nav-stats:</strong> <span data-i18n="nav-stats">내 기록</span></div>
+      
+      <h3>홈 페이지</h3>
+      <div><strong>home-pill:</strong> <span data-i18n="home-pill">AI 기반 스피치 코칭 플랫폼</span></div>
+      <div><strong>home-title1:</strong> <span data-i18n="home-title1">발표가 두렵지 않은</span></div>
+      <div><strong>home-sub:</strong> <span data-i18n="home-sub">실시간 음성 분석과 AI 피드백...</span></div>
+      
+      <h3>면접 페이지</h3>
+      <div><strong>interview-title:</strong> <span data-i18n="interview-title">모의 면접</span></div>
+      <div><strong>interview-sub:</strong> <span data-i18n="interview-sub">실제 면접 상황을 가정하여 연습하세요</span></div>
+      <div><strong>interview-filter-all:</strong> <span data-i18n="interview-filter-all">전체</span></div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h3>현재 언어</h3>
+    <div id="currentLangDisplay" style="font-size: 1.2rem; font-weight: 700; color: #a78bfa;">
+      한국어
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script>
+    // 언어 버튼 클릭 이벤트
+    document.querySelectorAll('.lang-test-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.getAttribute('data-lang');
+        
+        // 버튼 활성화 상태 업데이트
+        document.querySelectorAll('.lang-test-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 언어 변경
+        localStorage.setItem('speechcoach_lang', lang);
+        i18n.setLang(lang);
+        i18n.applyTranslations();
+        
+        // 현재 언어 표시
+        document.getElementById('currentLangDisplay').textContent = i18n.t('lang-' + lang);
+        
+        console.log('언어 변경됨:', lang);
+      });
+    });
+
+    // 페이지 로드 시 현재 언어 표시
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentLang = localStorage.getItem('speechcoach_lang') || 'ko';
+      document.getElementById('currentLangDisplay').textContent = i18n.t('lang-' + currentLang);
+      
+      // 활성화된 버튼 설정
+      document.querySelectorAll('.lang-test-btn').forEach(b => {
+        if (b.getAttribute('data-lang') === currentLang) {
+          b.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
