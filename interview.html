@@ -272,6 +272,60 @@
     .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
     .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
     @media(max-width:768px){ .lang-switcher { bottom: 1rem; right: 1rem; } .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; } }
+
+    /* Speech Language Bar */
+    .speech-lang-bar {
+      display: none;
+      align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      background: rgba(123, 99, 248, 0.08);
+      border: 1px solid rgba(123, 99, 248, 0.2);
+      border-radius: var(--r-xl);
+    }
+    .speech-lang-bar.show { display: flex; }
+    .speech-lang-bar .left { display: flex; align-items: center; gap: 0.5rem; }
+    .speech-lang-bar .left span:first-child { font-size: 1.2rem; }
+    .speech-lang-bar .left span:nth-child(2) { font-size: 0.9rem; font-weight: 600; color: #fff; }
+    .speech-lang-bar .left span:last-child { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-left: 0.5rem; }
+    .speech-lang-bar select {
+      padding: 0.5rem 1rem; background: rgba(30, 30, 40, 0.9);
+      border: 1px solid rgba(123, 99, 248, 0.4); border-radius: 8px;
+      color: #fff; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; min-width: 150px; outline: none;
+    }
+
+    /* Transcript Area */
+    .interview-transcript-card {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 1.5rem 1.6rem;
+      margin-bottom: 1.5rem;
+      min-height: 150px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .interview-transcript-card.show { display: block; }
+    .interview-transcript-card.is-rec {
+      border-color: rgba(244, 98, 106, 0.28);
+      box-shadow: 0 0 0 1px rgba(244, 98, 106, 0.07);
+    }
+    .interview-transcript-card .tc-label {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-dim); margin-bottom: 0.85rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .interview-transcript-card .transcript-text {
+      font-size: 0.97rem; line-height: 2;
+      color: var(--text); white-space: pre-wrap; min-height: 75px;
+    }
+    .interview-transcript-card .transcript-text .interim {
+      color: var(--text-dim); font-style: italic;
+    }
+    .interview-transcript-card .transcript-placeholder {
+      color: var(--text-dim); font-style: italic; font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -344,7 +398,33 @@
         <div class="question-tips" id="questionTips"></div>
         
         <div class="timer-display" id="timerDisplay">00:00</div>
-        
+
+        <!-- 음성 인식 언어 선택 (녹음 시작 시 표시) -->
+        <div class="speech-lang-bar" id="speechLangBar">
+          <div class="left">
+            <span>🌐</span>
+            <span>음성 인식 언어</span>
+            <span id="currentSpeechLang">(한국어)</span>
+          </div>
+          <select id="speechLangSelect" onchange="changeInterviewSpeechLanguage()">
+            <option value="ko-KR">한국어</option>
+            <option value="en-US">English</option>
+            <option value="zh-CN">中文</option>
+            <option value="ja-JP">日本語</option>
+            <option value="es-ES">Español</option>
+            <option value="fr-FR">Français</option>
+            <option value="de-DE">Deutsch</option>
+          </select>
+        </div>
+
+        <!-- 실시간 텍스트 인식 영역 -->
+        <div class="interview-transcript-card" id="interviewTranscriptCard">
+          <div class="tc-label">🔤 음성 인식 텍스트</div>
+          <div class="transcript-text" id="interviewTranscriptText">
+            <span class="transcript-placeholder">녹음을 시작하면 여기에 인식된 텍스트가 표시됩니다...</span>
+          </div>
+        </div>
+
         <div class="control-buttons">
           <button class="btn btn-primary btn-lg" id="startBtn" onclick="startInterview()">
             🎤 답변 시작

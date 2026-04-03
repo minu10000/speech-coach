@@ -4,10 +4,10 @@
 const APIConfig = {
   // 현재 선택된 API ('gemini' 또는 'openai')
   currentAPI: 'gemini',
-  
+
   // Gemini API 설정
   gemini: {
-    apiKey: '여기에_새_API_키_붙여넣기',
+    apiKey: 'AIzaSyBBimZ8aL15GJ0y_TyIV2gcc1KtIJ6_cwI',
     model: 'gemini-2.0-flash',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta'
   },
@@ -54,7 +54,8 @@ function openAPISettings() {
     document.getElementById('geminiKeyInput').value = APIConfig.gemini.apiKey;
     document.getElementById('openaiKeyInput').value = APIConfig.openai.apiKey;
     document.getElementById('apiSelect').value = APIConfig.currentAPI;
-    modal.classList.add('show');
+    modal.style.display = 'flex';
+    updateAPIStatusUI();
   }
 }
 
@@ -62,7 +63,7 @@ function openAPISettings() {
 function closeAPISettings() {
   const modal = document.getElementById('apiSettingsModal');
   if (modal) {
-    modal.classList.remove('show');
+    modal.style.display = 'none';
   }
 }
 
@@ -71,13 +72,19 @@ function saveAPISettings() {
   const geminiKey = document.getElementById('geminiKeyInput').value.trim();
   const openaiKey = document.getElementById('openaiKeyInput').value.trim();
   const selectedAPI = document.getElementById('apiSelect').value;
-  
-  if (geminiKey) setGeminiAPIKey(geminiKey);
-  if (openaiKey) setOpenAIAPIKey(openaiKey);
+
+  if (geminiKey) {
+    APIConfig.gemini.apiKey = geminiKey;
+    localStorage.setItem('sc_gemini_key', geminiKey);
+  }
+  if (openaiKey) {
+    APIConfig.openai.apiKey = openaiKey;
+    localStorage.setItem('sc_openai_key', openaiKey);
+  }
   setCurrentAPI(selectedAPI);
-  
+
   closeAPISettings();
-  
+
   showToast({
     type: 'success',
     title: 'API 설정이 저장되었습니다',
@@ -114,22 +121,40 @@ function resetAPISettings() {
 function updateAPIStatusUI() {
   const statusEl = document.getElementById('apiStatus');
   if (!statusEl) return;
-  
+
   const currentAPI = APIConfig.currentAPI;
   const isSet = isAPIKeySet(currentAPI);
-  
+  const apiKey = currentAPI === 'gemini' ? APIConfig.gemini.apiKey : APIConfig.openai.apiKey;
+  const maskedKey = apiKey ? apiKey.substring(0, 6) + '****' : '미설정';
+
   statusEl.innerHTML = `
-    <span class="api-status-badge ${isSet ? 'status-connected' : 'status-disconnected'}">
-      ${isSet ? '✅' : '⚠️'} ${currentAPI === 'gemini' ? 'Gemini' : 'OpenAI'}
-      ${!isSet ? ' (API 키 필요)' : ''}
-    </span>
+    <div style="margin-bottom:0.5rem;">
+      <strong>${isSet ? '✅' : '⚠️'} ${currentAPI === 'gemini' ? 'Gemini' : 'OpenAI'}</strong>
+      ${!isSet ? '<br><span style="color:#ef4444;">API 키가 필요합니다!</span>' : `<br><span style="color:#666;">키: ${maskedKey}</span>`}
+    </div>
+    <div style="font-size:0.75rem;color:#888;">
+      💡 Gemini API 키는 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#8b5cf6;">Google AI Studio</a>에서 무료로 발급받을 수 있습니다.
+    </div>
   `;
-  
-  statusEl.onclick = openAPISettings;
-  statusEl.style.cursor = 'pointer';
 }
+
+// 모달 외부 클릭 시 닫기
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('apiSettingsModal');
+  if (modal && modal.style.display === 'flex' && e.target === modal) {
+    closeAPISettings();
+  }
+});
 
 // 페이지 로드 시 API 상태 확인
 document.addEventListener('DOMContentLoaded', () => {
-  updateAPIStatusUI();
+  // 하드코딩된 API 키를 무조건 사용 (localStorage 덮어쓰기 방지)
+  APIConfig.gemini.apiKey = 'AIzaSyBBimZ8aL15GJ0y_TyIV2gcc1KtIJ6_cwI';
+  localStorage.setItem('sc_gemini_key', APIConfig.gemini.apiKey);
+
+  const savedAPI = localStorage.getItem('sc_ai_api');
+  if (savedAPI) APIConfig.currentAPI = savedAPI;
+
+  console.log('[API Config] Current API:', APIConfig.currentAPI);
+  console.log('[API Config] Gemini key set:', !!APIConfig.gemini.apiKey);
 });

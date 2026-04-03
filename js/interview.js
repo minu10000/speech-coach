@@ -192,7 +192,11 @@ let lastDate = localStorage.getItem('sc_interview_date') || '';
 let mediaRecorder = null;
 let audioChunks = [];
 let finalTranscript = '';
+let interimTranscript = '';
 let recognition = null;
+
+// 면접 음성 인식 언어 (기본값: 한국어)
+let interviewSpeechLang = localStorage.getItem('sc_interview_speech_lang') || 'ko-KR';
 
 // 오늘 날짜 확인 및 카운트 초기화
 function checkToday() {
@@ -290,11 +294,15 @@ function startInterview() {
   isRecording = true;
   document.getElementById('startBtn').style.display = 'none';
   document.getElementById('stopBtn').style.display = 'inline-flex';
-  
+
   // 오디오 녹음 초기화
   audioChunks = [];
   finalTranscript = '';
-  
+  interimTranscript = '';
+
+  // Transcript 카드와 언어 바 표시
+  showInterviewTranscript();
+
   // 타이머 시작
   timerInterval = setInterval(() => {
     remainingTime--;
@@ -331,11 +339,14 @@ function stopInterview() {
   stopSpeechRecognition();
   stopAudioRecording();
 
+  // Transcript 카드와 언어 바 숨기기
+  hideInterviewTranscript();
+
   // 카운트 증가
   todayCount++;
   localStorage.setItem('sc_interview_today', todayCount.toString());
   updateProgress();
-  
+
   // 기록 저장
   const recordId = saveInterviewRecord();
 
@@ -345,7 +356,7 @@ function stopInterview() {
     message: '연습이 저장되었습니다.',
     duration: 3000
   });
-  
+
   // 1 초 후 결과 페이지로 이동
   setTimeout(() => {
     window.location.href = `interview-result.html?id=${recordId}`;
@@ -365,19 +376,19 @@ function showNextQuestion() {
 // 면접 기록 저장
 function saveInterviewRecord() {
   const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-  
+
   const record = {
     id: Date.now(),
     date: new Date().toLocaleString('ko-KR'),
     type: 'interview',
-    customName: '모의 면접 연습', // 기본 이름
+    customName: '모의 면접 연습',
     scenarioId: currentScenario.id,
     scenarioTitle: currentScenario.title,
     category: currentScenario.category,
     timeLimit: currentScenario.timeLimit,
     actualTime: currentScenario.timeLimit - remainingTime,
-    transcript: finalTranscript.trim(),
-    score: Math.round((remainingTime / currentScenario.timeLimit) * 100) // 시간 내 완료 정도에 따라 점수
+    transcript: (finalTranscript + ' ' + interimTranscript).trim(),
+    score: Math.round((remainingTime / currentScenario.timeLimit) * 100)
   };
   
   // 사용자 기록 저장
@@ -431,15 +442,18 @@ function updateProgress() {
 // 음성 인식 시작
 function startSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) return;
+  if (!SpeechRecognition) {
+    console.warn('SpeechRecognition not supported');
+    return;
+  }
 
   recognition = new SpeechRecognition();
-  recognition.lang = localStorage.getItem('sc_speech_lang') || 'ko-KR';
+  recognition.lang = interviewSpeechLang;
   recognition.continuous = true;
   recognition.interimResults = true;
-  
+
   recognition.onresult = function(event) {
-    let interimTranscript = '';
+    interimTranscript = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       if (event.results[i].isFinal) {
         finalTranscript += event.results[i][0].transcript + ' ';
@@ -447,18 +461,131 @@ function startSpeechRecognition() {
         interimTranscript += event.results[i][0].transcript;
       }
     }
+    updateInterviewTranscript();
   };
-  
+
+  recognition.onerror = function(e) {
+    if (e.error === 'no-speech') return;
+    console.warn('Speech recognition error:', e.error);
+  };
+
+  recognition.onend = function() {
+    if (isRecording) {
+      try {
+        recognition.start();
+      } catch (e) {
+        console.warn('Speech recognition restart failed:', e);
+      }
+    }
+  };
+
   recognition.start();
 }
 
 // 음성 인식 중지
 function stopSpeechRecognition() {
   if (recognition) {
+    recognition.onend = null;
     recognition.stop();
     recognition = null;
   }
 }
+
+// ── Transcript 표시 ──
+function showInterviewTranscript() {
+  const card = document.getElementById('interviewTranscriptCard');
+  const bar = document.getElementById('speechLangBar');
+  if (card) { card.classList.add('show', 'is-rec'); }
+  if (bar) { bar.classList.add('show'); }
+  updateInterviewSpeechLangDisplay();
+  updateInterviewTranscript();
+}
+
+function hideInterviewTranscript() {
+  const card = document.getElementById('interviewTranscriptCard');
+  const bar = document.getElementById('speechLangBar');
+  if (card) { card.classList.remove('show', 'is-rec'); }
+  if (bar) { bar.classList.remove('show'); }
+}
+
+function updateInterviewTranscript() {
+  const el = document.getElementById('interviewTranscriptText');
+  if (!el) return;
+  if (!finalTranscript && !interimTranscript) {
+    el.innerHTML = '<span class="interim">듣고 있습니다...</span>';
+    return;
+  }
+  el.innerHTML = finalTranscript +
+    (interimTranscript ? `<span class="interim">${interimTranscript}</span>` : '');
+}
+
+// ── 면접 음성 인식 언어 변경 ──
+function changeInterviewSpeechLanguage() {
+  const select = document.getElementById('speechLangSelect');
+  if (!select) return;
+  interviewSpeechLang = select.value;
+  localStorage.setItem('sc_interview_speech_lang', interviewSpeechLang);
+  updateInterviewSpeechLangDisplay();
+
+  console.log('Interview speech language changed to:', interviewSpeechLang);
+
+  // 녹음 중이면 음성 인식 재시작
+  if (isRecording && recognition) {
+    recognition.stop();
+    setTimeout(() => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = interviewSpeechLang;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.onresult = function(event) {
+        interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        updateInterviewTranscript();
+      };
+      recognition.onend = function() {
+        if (isRecording) {
+          try { recognition.start(); } catch(e) {}
+        }
+      };
+      recognition.start();
+    }, 100);
+  }
+}
+
+function updateInterviewSpeechLangDisplay() {
+  const display = document.getElementById('currentSpeechLang');
+  const select = document.getElementById('speechLangSelect');
+  if (!display || !select) return;
+
+  const langNames = {
+    'ko-KR': '한국어',
+    'en-US': 'English',
+    'zh-CN': '中文',
+    'ja-JP': '日本語',
+    'es-ES': 'Español',
+    'fr-FR': 'Français',
+    'de-DE': 'Deutsch'
+  };
+
+  const currentLang = select.value;
+  display.textContent = '(' + (langNames[currentLang] || currentLang) + ')';
+}
+
+// 페이지 초기화 시 언어 셀렉트 박스 설정
+document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('speechLangSelect');
+  if (select) {
+    select.value = interviewSpeechLang;
+    updateInterviewSpeechLangDisplay();
+  }
+});
 
 // 카테고리 필터
 function setupFilter() {

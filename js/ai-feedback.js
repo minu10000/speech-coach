@@ -16,8 +16,8 @@ const AIFeedbackService = {
   // Gemini API 로 피드백 생성 (재시도 로직 포함)
   async generateWithGemini(record, retryCount = 0) {
     const apiKey = APIConfig.gemini.apiKey;
-    if (!apiKey) {
-      throw new Error('Gemini API 키가 설정되지 않았습니다.');
+    if (!apiKey || apiKey === '') {
+      throw new Error('Gemini API 키가 설정되지 않았습니다. 상단 설정 아이콘에서 API 키를 입력해주세요.');
     }
 
     const prompt = this.createFeedbackPrompt(record);
