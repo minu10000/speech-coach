@@ -294,10 +294,14 @@
         <span id="currentSpeechLang" style="font-size:0.8rem; color:rgba(255,255,255,0.6); margin-left:0.5rem;">(한국어)</span>
       </div>
       <select id="speechLangSelect" onchange="changeSpeechLanguage()" style="padding:0.5rem 1rem; background:rgba(30,30,40,0.9); border:1px solid rgba(123,99,248,0.4); border-radius:8px; color:#fff; font-size:0.9rem; font-weight:600; cursor:pointer; min-width:150px; outline:none;">
-        <option value="ko-KR">한국어</option>
-        <option value="en-US">English</option>
-        <option value="zh-CN">中文</option>
-        <option value="ja-JP">日本語</option>
+        <option value="ko-KR">🇰🇷 한국어</option>
+        <option value="en-US">🇺🇸 English (US)</option>
+        <option value="en-GB">🇬🇧 English (UK)</option>
+        <option value="zh-CN">🇨🇳 中文 (简体)</option>
+        <option value="ja-JP">🇯🇵 日本語</option>
+        <option value="es-ES">🇪🇸 Español</option>
+        <option value="fr-FR">🇫🇷 Français</option>
+        <option value="de-DE">🇩🇪 Deutsch</option>
       </select>
     </div>
 
@@ -380,6 +384,7 @@
   <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api-config.js"></script>
+  <script src="js/language-settings.js"></script>
   <script src="js/practice.js"></script>
   <script>
     // 오리지널 함수 저장 후 래핑

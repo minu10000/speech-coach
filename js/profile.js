@@ -494,3 +494,102 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('languageChanged', () => {
   loadStats();
 });
+
+// ===== 기록 공유 기능 =====
+
+// 헤더 공유 버튼 클릭 시
+document.getElementById('shareHeaderBtn')?.addEventListener('click', function() {
+  const user = getCurrentUser();
+  let records = [];
+
+  if (user) {
+    records = getUserRecords(user.id);
+  } else {
+    const guestRecord = sessionStorage.getItem('sc_guest_record');
+    if (guestRecord) {
+      records = [JSON.parse(guestRecord)];
+    }
+  }
+
+  if (records.length === 0) {
+    showToast({
+      type: 'warning',
+      title: window.i18n ? window.i18n.t('profile-share-no-data') : '공유할 기록이 없습니다.',
+      duration: 3000
+    });
+    return;
+  }
+
+  // 통계 계산
+  const totalCount = records.length;
+  const totalTime = records.reduce((sum, r) => sum + (r.totalTime || 0), 0);
+  const avgScore = Math.round(records.reduce((sum, r) => sum + (r.score || 0), 0) / records.length);
+  const bestScore = Math.max(...records.map(r => r.score || 0));
+
+  const avgSilence = Math.round(records.reduce((sum, r) => sum + getCategoryScore(r.silenceRate, 'silence'), 0) / records.length);
+  const avgSpeed = Math.round(records.reduce((sum, r) => sum + getCategoryScore(r.wpm, 'speed'), 0) / records.length);
+  const avgFiller = Math.round(records.reduce((sum, r) => sum + getCategoryScore(r.fillerCount, 'filler'), 0) / records.length);
+  const avgWords = Math.round(records.reduce((sum, r) => sum + getCategoryScore(r.wordCount, 'words'), 0) / records.length);
+
+  const userName = user ? (user.nickname || user.username || '게스트') : '게스트';
+
+  // 공유할 텍스트
+  const shareText = `
+🎤 SpeechCoach - 스피치 연습 기록
+
+👤 ${userName}
+📋 총 연습: ${totalCount}회 | ⏱ ${Math.round(totalTime / 60)}분
+🏆 평균 ${avgScore}점 | 📈 최고 ${bestScore}점
+
+🎯 스킬 분석
+• 침묵관리 ${avgSilence}점 | 말하기속도 ${avgSpeed}점
+• 언어습관 ${avgFiller}점 | 발음/발화량 ${avgWords}점
+
+#SpeechCoach #스피치연습
+`.trim();
+
+  const shareUrl = window.location.href;
+  const shareTitle = `SpeechCoach - ${userName}님의 스피치 연습 기록`;
+
+  // Web Share API 지원 시 (모바일: 카톡, 메시지 등 공유 가능)
+  if (navigator.share) {
+    navigator.share({
+      title: shareTitle,
+      text: shareText,
+      url: shareUrl
+    }).catch(err => {
+      if (err.name !== 'AbortError') {
+        // 실패 시 클립보드 복사
+        copyToClipboard(shareText + '\n\n' + shareUrl);
+      }
+    });
+  } else {
+    // 데스크톱: 클립보드 복사
+    copyToClipboard(shareText + '\n\n' + shareUrl);
+  }
+});
+
+// 클립보드 복사 헬퍼
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast({
+      type: 'success',
+      title: '기록이 클립보드에 복사되었습니다! 카톡 등에서 붙여넣기하세요.',
+      duration: 3000
+    });
+  }).catch(() => {
+    // 폴백
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    
+    showToast({
+      type: 'success',
+      title: '기록이 클립보드에 복사되었습니다! 카톡 등에서 붙여넣기하세요.',
+      duration: 3000
+    });
+  });
+}

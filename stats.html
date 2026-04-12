@@ -76,6 +76,25 @@
       background-clip: text; letter-spacing: -0.03em; text-align: center;
     }
     .rec-score-lbl { font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: -0.1rem; }
+    
+    /* Record share button */
+    .rec-share-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(123, 99, 248, 0.1);
+      border: 1px solid rgba(123, 99, 248, 0.3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s ease;
+      color: var(--text-dim); flex-shrink: 0;
+    }
+    .rec-share-btn:hover {
+      background: rgba(123, 99, 248, 0.25);
+      border-color: rgba(123, 99, 248, 0.6);
+      color: var(--p1);
+      transform: scale(1.1) rotate(5deg);
+    }
+    .rec-share-btn svg {
+      width: 18px; height: 18px;
+    }
     .edit-name-btn {
       background: rgba(123, 99, 248, 0.15);
       border: 1px solid rgba(123, 99, 248, 0.3);

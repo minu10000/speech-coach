@@ -293,6 +293,28 @@
     .lang-option.active { background: rgba(123, 99, 248, 0.3); color: #a78bfa; }
     .lang-flag { font-size: 1.2rem; width: 28px; text-align: center; }
     @media(max-width:768px){ .lang-switcher { bottom: 1rem; right: 1rem; } .lang-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; } }
+
+    /* Header share button */
+    .share-header-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s ease;
+      color: var(--text-dim); flex-shrink: 0; margin-top: 0.3rem;
+    }
+    .share-header-btn:hover {
+      border-color: var(--border-p);
+      background: rgba(123,99,248,0.15);
+      color: var(--p1);
+      transform: scale(1.05);
+    }
+    .share-header-btn svg {
+      width: 20px; height: 20px;
+    }
+    @media(max-width:600px){
+      .share-header-btn { width: 36px; height: 36px; }
+      .share-header-btn svg { width: 18px; height: 18px; }
+    }
   </style>
 </head>
 <body>
@@ -328,8 +350,21 @@
 
   <div class="profile-wrap">
     <div class="pg-header">
-      <h1 data-i18n="profile-title">내 프로필</h1>
-      <p data-i18n="profile-sub">프로필 정보와 연습 통계를 확인하세요</p>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <h1 data-i18n="profile-title">내 프로필</h1>
+          <p data-i18n="profile-sub">프로필 정보와 연습 통계를 확인하세요</p>
+        </div>
+        <button class="share-header-btn" id="shareHeaderBtn" title="기록 공유">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- 프로필 카드 -->
@@ -454,7 +489,7 @@
       <div class="badge-grid" id="badgeGrid"></div>
     </div>
 
-    <div style="text-align:center;margin-top:2rem;">
+    <div style="text-align:center;margin-top:2rem;display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;">
       <a href="stats.html" class="btn btn-outline" data-i18n="profile-btn-stats">전체 기록 보기</a>
       <a href="practice.html" class="btn btn-primary" data-i18n="profile-btn-practice">연습하기</a>
     </div>

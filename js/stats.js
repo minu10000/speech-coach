@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const isInterview = r.type === 'interview';
       const categoryNames = { interview: '면접', presentation: '발표', speech: '스피치', conversation: '대화' };
       const recordName = r.customName || r.scenarioTitle || `연습 #${records.length - i}`;
-      
+
       return `
       <div class="rec-item" style="cursor:pointer;" onclick="viewRecordDetail(${r.id})">
         <div class="rec-left">
@@ -112,6 +112,15 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="rec-score">${r.score || '-'}</div>
             <div class="rec-score-lbl">점수</div>
           </div>
+          <button class="rec-share-btn" onclick="event.stopPropagation(); shareRecord(event, ${r.id})" title="기록 공유">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
         </div>
         <button class="edit-name-btn" onclick="event.stopPropagation(); editRecordName(${r.id}, '${recordName.replace(/'/g, "\\'")}')" title="이름 수정">
           ✏️
@@ -270,6 +279,103 @@ document.addEventListener('DOMContentLoaded', function () {
 
   render();
 });
+
+// ===== 기록 공유 기능 =====
+window.shareRecord = function(event, recordId) {
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  
+  const user = getCurrentUser();
+  let records = [];
+  
+  if (user) {
+    records = getUserRecords(user.id);
+    const interviewRecords = JSON.parse(localStorage.getItem('sc_interview_records_' + user.id) || '[]');
+    records = records.concat(interviewRecords);
+  } else {
+    const guestRecord = sessionStorage.getItem('sc_guest_record');
+    if (guestRecord) {
+      records = [JSON.parse(guestRecord)];
+    }
+    const guestInterviewRecords = JSON.parse(localStorage.getItem('sc_guest_interview_records') || '[]');
+    records = records.concat(guestInterviewRecords);
+  }
+  
+  const record = records.find(r => r.id === recordId);
+  
+  if (!record) {
+    showToast({
+      type: 'warning',
+      title: '기록을 찾을 수 없습니다.',
+      duration: 3000
+    });
+    return;
+  }
+  
+  const isInterview = record.type === 'interview';
+  const recordName = record.customName || record.scenarioTitle || '연습 기록';
+  const userName = user ? (user.nickname || user.username || '게스트') : '게스트';
+  
+  // 공유할 텍스트 생성
+  let shareText = '🎤 SpeechCoach - 스피치 연습 기록\n\n';
+  shareText += '👤 ' + userName + '\n';
+  shareText += '📝 ' + recordName + '\n';
+  shareText += '📅 ' + record.date + '\n\n';
+  shareText += '🏆 점수: ' + (record.score || '-') + '점\n';
+  
+  if (!isInterview) {
+    const totalMin = Math.floor((record.totalTime || 0) / 60);
+    const totalSec = (record.totalTime || 0) % 60;
+    shareText += '⏱ 연습 시간: ' + (totalMin > 0 ? totalMin + '분 ' : '') + totalSec + '초\n';
+    shareText += '💬 단어 수: ' + (record.wordCount || 0) + '개\n';
+    shareText += '🚀 말하기 속도: ' + (record.wpm || 0) + ' WPM\n';
+    if (record.silenceRate) shareText += '🤫 침묵 비율: ' + record.silenceRate + '%\n';
+    if (record.fillerCount) shareText += '⚠️ 추임새: ' + record.fillerCount + '회\n';
+  } else {
+    const actualMin = Math.floor((record.actualTime || 0) / 60);
+    const actualSec = (record.actualTime || 0) % 60;
+    shareText += '⏱ 실제 시간: ' + (actualMin > 0 ? actualMin + '분 ' : '') + actualSec + '초\n';
+    const categoryNames = { interview: '면접', presentation: '발표', speech: '스피치', conversation: '대화' };
+    shareText += '📋 유형: ' + (categoryNames[record.category] || '면접') + '\n';
+  }
+  
+  shareText += '\n#SpeechCoach #스피치연습';
+  
+  // 클립보드 복사
+  navigator.clipboard.writeText(shareText).then(function() {
+    showToast({
+      type: 'success',
+      title: '✅ 기록이 클립보드에 복사되었습니다!',
+      message: '카카오톡 등에서 붙여넣기하세요.',
+      duration: 3000
+    });
+  }).catch(function() {
+    // 폴백
+    const textarea = document.createElement('textarea');
+    textarea.value = shareText;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      showToast({
+        type: 'success',
+        title: '✅ 기록이 클립보드에 복사되었습니다!',
+        message: '카카오톡 등에서 붙여넣기하세요.',
+        duration: 3000
+      });
+    } catch (err) {
+      showToast({
+        type: 'error',
+        title: '❌ 복사에 실패했습니다.',
+        duration: 3000
+      });
+    }
+    document.body.removeChild(textarea);
+  });
+};
 
 // 언어 변경 시 페이지 다시 그리기
 window.addEventListener('languageChanged', () => {

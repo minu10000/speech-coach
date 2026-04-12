@@ -504,16 +504,28 @@ function showFeedback() {
   const wpm = totalSeconds > 0 ? Math.round(words.length / (totalSeconds / 60)) : 0;
   const silenceRate = totalSeconds > 0 ? Math.round((silenceSeconds / totalSeconds) * 100) : 0;
 
-  const fillers = ['음', '어', '그래서', '뭐', '그냥', '근데', '아'];
+  // 언어별 filler words 사용
   let fillerCount = 0;
-  fillers.forEach(f => {
-    const regex = new RegExp(f, 'g');
-    const matches = finalTranscript.match(regex);
-    if (matches) fillerCount += matches.length;
-  });
+  if (typeof LanguageSettings !== 'undefined') {
+    fillerCount = LanguageSettings.countFillerWords(finalTranscript);
+  } else {
+    const fillers = ['음', '어', '그래서', '뭐', '그냥', '근데', '아'];
+    fillers.forEach(f => {
+      const regex = new RegExp(f, 'g');
+      const matches = finalTranscript.match(regex);
+      if (matches) fillerCount += matches.length;
+    });
+  }
+
+  // 언어별 최적 기준 가져오기
+  let optimalWPM = { min: 150, max: 200 };
+  if (typeof LanguageSettings !== 'undefined') {
+    optimalWPM = LanguageSettings.getOptimalWPM();
+  }
 
   const items = [];
 
+  // 침묵 비율 피드백
   if (silenceRate <= 20) {
     items.push({ icon: '✅', text: `침묵 비율 ${silenceRate}% - 매우 좋습니다!` });
   } else if (silenceRate <= 40) {
@@ -522,26 +534,45 @@ function showFeedback() {
     items.push({ icon: '❌', text: `침묵 비율 ${silenceRate}% - 침묵이 너무 많습니다.` });
   }
 
-  if (wpm >= 150 && wpm <= 200) {
+  // 말하기 속도 피드백 (언어별 기준)
+  if (wpm >= optimalWPM.min && wpm <= optimalWPM.max) {
     items.push({ icon: '✅', text: `말하기 속도 ${wpm} WPM - 최적 속도입니다!` });
-  } else if (wpm < 100) {
+  } else if (wpm < optimalWPM.min) {
     items.push({ icon: '⚠️', text: `말하기 속도 ${wpm} WPM - 너무 느립니다. 조금 빠르게 말해보세요.` });
-  } else if (wpm > 250) {
+  } else if (wpm > optimalWPM.max) {
     items.push({ icon: '⚠️', text: `말하기 속도 ${wpm} WPM - 너무 빠릅니다. 천천히 말해보세요.` });
   } else {
-    items.push({ icon: '💡', text: `말하기 속도 ${wpm} WPM - 적정 범위(150~200)에 가깝습니다.` });
+    items.push({ icon: '💡', text: `말하기 속도 ${wpm} WPM - 적정 범위(${optimalWPM.min}~${optimalWPM.max})에 가깝습니다.` });
   }
 
+  // 추임새 피드백
   if (fillerCount === 0) {
     items.push({ icon: '✅', text: '습관적 추임새가 감지되지 않았습니다!' });
   } else {
-    items.push({ icon: '⚠️', text: `추임새(음, 어, 그래서 등) ${fillerCount}회 감지. 의식적으로 줄여보세요.` });
+    const langObj = typeof LanguageSettings !== 'undefined' ? LanguageSettings.getCurrentLangObject() : null;
+    const fillerText = langObj ? `(${langObj.fillerWords.slice(0, 3).join(', ')} 등)` : '(음, 어, 그래서 등)';
+    items.push({ icon: '⚠️', text: `추임새 ${fillerCount}회 감지 ${fillerText}. 의식적으로 줄여보세요.` });
   }
 
+  // 발화량 피드백
   if (words.length < 20) {
     items.push({ icon: '💡', text: '발화량이 적습니다. 더 많이 말하는 연습을 해보세요.' });
   } else {
     items.push({ icon: '✅', text: `총 ${words.length}단어 발화 - 충분한 내용을 말했습니다.` });
+  }
+
+  // 언어별 발음 분석 결과 표시
+  if (typeof LanguageSettings !== 'undefined') {
+    const pronunciationAnalysis = LanguageSettings.analyzePronunciation(finalTranscript);
+    if (pronunciationAnalysis.issues.length > 0) {
+      items.push({ icon: '🎯', text: `발음 분석: ${pronunciationAnalysis.issues.join(', ')}` });
+    }
+    if (pronunciationAnalysis.suggestions.length > 0) {
+      items.push({ icon: '💡', text: `제안: ${pronunciationAnalysis.suggestions.join(', ')}` });
+    }
+    if (pronunciationAnalysis.languageSpecific) {
+      items.push({ icon: '🌐', text: pronunciationAnalysis.languageSpecific });
+    }
   }
 
   // 분석 결과 표시 (결과 저장 버튼과 함께)
@@ -556,13 +587,28 @@ async function saveResult() {
   const wpm = totalSeconds > 0 ? Math.round(words.length / (totalSeconds / 60)) : 0;
   const silenceRate = totalSeconds > 0 ? Math.round((silenceSeconds / totalSeconds) * 100) : 0;
 
-  const fillers = ['음', '어', '그래서', '뭐', '그냥', '근데', '아', '저기', '그러니까'];
+  // 언어별 filler words 사용 (LanguageSettings 시스템)
   let fillerCount = 0;
-  fillers.forEach(f => {
-    const regex = new RegExp(f, 'g');
-    const matches = finalTranscript.match(regex);
-    if (matches) fillerCount += matches.length;
-  });
+  if (typeof LanguageSettings !== 'undefined') {
+    fillerCount = LanguageSettings.countFillerWords(finalTranscript);
+  } else {
+    // 폴백: 기본 한국어 추임새
+    const fillers = ['음', '어', '그래서', '뭐', '그냥', '근데', '아', '저기', '그러니까'];
+    fillers.forEach(f => {
+      const regex = new RegExp(f, 'g');
+      const matches = finalTranscript.match(regex);
+      if (matches) fillerCount += matches.length;
+    });
+  }
+
+  // 언어별 최적 기준 가져오기
+  let optimalWPM = { min: 150, max: 200 };
+  let optimalWordCount = { min: 100, max: 300 };
+  
+  if (typeof LanguageSettings !== 'undefined') {
+    optimalWPM = LanguageSettings.getOptimalWPM();
+    optimalWordCount = LanguageSettings.getOptimalWordCount();
+  }
 
   // === 점수 계산 (4 가지 항목 각 25 점, 총 100 점) ===
   let score = 0; // 기본값 0 점으로 초기화
@@ -587,11 +633,13 @@ async function saveResult() {
     else if (silenceRate > 25) score -= 10;
     else if (silenceRate > 15) score -= 5;
 
-    // 2. 말하기 속도 (25 점 감점)
-    if (wpm < 80 || wpm > 280) score -= 25;
-    else if (wpm < 100 || wpm > 250) score -= 18;
-    else if (wpm < 130 || wpm > 220) score -= 10;
-    else if (wpm < 150 || wpm > 200) score -= 5;
+    // 2. 말하기 속도 (25 점 감점) - 언어별 최적 기준 사용
+    const wpmMid = (optimalWPM.min + optimalWPM.max) / 2;
+    const wpmDiff = Math.abs(wpm - wpmMid);
+    if (wpm < optimalWPM.min - 50 || wpm > optimalWPM.max + 50) score -= 25;
+    else if (wpm < optimalWPM.min - 30 || wpm > optimalWPM.max + 30) score -= 18;
+    else if (wpm < optimalWPM.min - 15 || wpm > optimalWPM.max + 15) score -= 10;
+    else if (wpm < optimalWPM.min || wpm > optimalWPM.max) score -= 5;
 
     // 3. 추임새 (25 점 감점)
     if (fillerCount > 10) score -= 25;
@@ -626,6 +674,12 @@ async function saveResult() {
     });
   }
 
+  // 언어별 발음 분석 (선택적)
+  let pronunciationAnalysis = null;
+  if (typeof LanguageSettings !== 'undefined') {
+    pronunciationAnalysis = LanguageSettings.analyzePronunciation(finalTranscript);
+  }
+
   const record = {
     id: Date.now(),
     date: new Date().toLocaleString('ko-KR'),
@@ -638,6 +692,11 @@ async function saveResult() {
     fillerCount,
     score,
     transcript: finalTranscript.trim().slice(0, 500),
+    // 다국어 지원 데이터
+    language: speechLanguage || 'ko-KR',
+    pronunciationAnalysis: pronunciationAnalysis,
+    languageName: (typeof LanguageSettings !== 'undefined' ? 
+      LanguageSettings.getCurrentLangObject().name : '한국어')
   };
 
   // 오디오 저장 - 모든 청크를 하나로 합침
@@ -813,6 +872,11 @@ function changeSpeechLanguage() {
   if (!select) return;
   speechLanguage = select.value;
   localStorage.setItem('sc_speech_lang', speechLanguage);
+
+  // LanguageSettings 시스템 사용
+  if (typeof LanguageSettings !== 'undefined') {
+    LanguageSettings.setLanguage(speechLanguage);
+  }
 
   // 현재 선택된 언어 표시 업데이트
   updateSpeechLangDisplay();

@@ -7,7 +7,7 @@ const APIConfig = {
 
   // Gemini API 설정
   gemini: {
-    apiKey: 'AIzaSyBBimZ8aL15GJ0y_TyIV2gcc1KtIJ6_cwI',
+    apiKey: 'AIzaSyBJBrY9fP36ZVyQbUr4B0fygggXRE_WQpM',
     model: 'gemini-2.0-flash',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta'
   },
@@ -149,7 +149,7 @@ document.addEventListener('click', (e) => {
 // 페이지 로드 시 API 상태 확인
 document.addEventListener('DOMContentLoaded', () => {
   // 하드코딩된 API 키를 무조건 사용 (localStorage 덮어쓰기 방지)
-  APIConfig.gemini.apiKey = 'AIzaSyBBimZ8aL15GJ0y_TyIV2gcc1KtIJ6_cwI';
+  APIConfig.gemini.apiKey = 'AIzaSyBJBrY9fP36ZVyQbUr4B0fygggXRE_WQpM';
   localStorage.setItem('sc_gemini_key', APIConfig.gemini.apiKey);
 
   const savedAPI = localStorage.getItem('sc_ai_api');

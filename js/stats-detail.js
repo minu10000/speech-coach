@@ -614,6 +614,9 @@ function renderPracticeDetail() {
           <div class="audio-progress-bar" id="audioProgressBar"></div>
         </div>
         <div class="audio-time" id="audioTime">0:00 / 0:00</div>
+        <button class="audio-btn download-btn" onclick="downloadRecordAudio()" title="오디오 다운로드">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        </button>
       </div>
       <div class="no-audio" id="noAudio" style="display:none;">녹음 파일이 없습니다.</div>
     </div>
@@ -650,18 +653,18 @@ async function initAudioPlayer() {
   const audioWrap = document.getElementById('audioWrap');
   const noAudio = document.getElementById('noAudio');
   const audioControls = document.querySelector('.audio-controls');
-  
+
   if (!audioWrap || !currentRecord) return;
-  
+
   try {
     // IndexedDB 에서 오디오 로드
     const record = await getAudioFromDB(currentRecord.id);
-    
+
     if (record && record.audio) {
       audioBlob = record.audio;
       audioUrl = URL.createObjectURL(audioBlob);
       audioElement = new Audio(audioUrl);
-      
+
       audioElement.addEventListener('ended', () => {
         isPlaying = false;
         updatePlayPauseIcon();
@@ -669,9 +672,9 @@ async function initAudioPlayer() {
         document.getElementById('audioProgressBar').style.width = '0%';
         document.getElementById('audioTime').textContent = `0:00 / ${formatTime(Math.floor(audioElement.duration))}`;
       });
-      
+
       document.getElementById('audioTime').textContent = `0:00 / ${formatTime(Math.floor(audioElement.duration))}`;
-      
+
       if (audioControls) audioControls.style.display = 'flex';
       if (noAudio) noAudio.style.display = 'none';
     } else {
@@ -689,6 +692,38 @@ async function initAudioPlayer() {
       noAudio.textContent = '녹음 파일을 불러올 수 없습니다.';
     }
   }
+}
+
+// 오디오 파일 다운로드
+function downloadRecordAudio() {
+  if (!audioBlob) {
+    showToast({
+      type: 'warning',
+      title: '다운로드 불가',
+      message: '오디오 파일이 없습니다. 먼저 녹음해주세요.',
+      duration: 3000
+    });
+    return;
+  }
+
+  const date = currentRecord ? new Date(currentRecord.id).toISOString().slice(0, 19).replace(/[:-]/g, '').replace('T', '_') : Date.now();
+  const filename = `speech-coach-${date}.webm`;
+
+  const url = URL.createObjectURL(audioBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast({
+    type: 'success',
+    title: '✅ 오디오 파일이 다운로드되었습니다!',
+    message: filename,
+    duration: 3000
+  });
 }
 
 // 페이지 로드 시 실행
